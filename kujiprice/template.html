@@ -44,6 +44,8 @@ main{max-width:1180px;margin:0 auto;padding:16px;display:grid;gap:12px;
 .pr small{color:var(--sub);font-size:12px}
 .gap{margin-top:8px;font-size:13px;font-weight:600}
 .gap.up{color:var(--up)} .gap.down{color:var(--down)} .gap.none{color:var(--sub);font-weight:400}
+.chg{margin-top:3px;font-size:12px;color:var(--sub)}
+.chg span{margin-left:6px;font-variant-numeric:tabular-nums}
 .empty{grid-column:1/-1;color:var(--sub);padding:40px 0;text-align:center}
 dialog{border:1px solid var(--line);border-radius:16px;background:var(--card);color:var(--ink);
   width:min(980px,calc(100vw - 24px));max-height:calc(100vh - 24px);padding:0}
@@ -118,6 +120,13 @@ function gapHtml(p) {
   return `<div class="gap none">가격 차이 없음</div>`;
 }
 
+function chgHtml(p) {
+  const one = (name, v) => v == null ? "" :
+    `<span>${name} ${v > 0 ? "▲" : v < 0 ? "▼" : "–"} ${Math.abs(v)}%</span>`;
+  const s = one("일본", p.chg.jp) + one("한국", p.chg.kr);
+  return s ? `<div class="chg">최근 4주 ${s}</div>` : "";
+}
+
 function render() {
   const q = document.getElementById("q").value.trim().toLowerCase();
   const both = document.getElementById("both").checked;
@@ -147,17 +156,24 @@ function render() {
             <small>${p.kr ? p.kr.n + "건" : "매물 없음"}</small></div>
         </div>
         ${gapHtml(p)}
+        ${chgHtml(p)}
       </div>`;
     el.onclick = () => openDetail(p);
     grid.append(el);
   }
 }
 
-function chart(rows) {
+// 주의 한가운데(목요일). 이번 주는 오늘을 넘지 않게 한다
+const mid = w => Math.min(+new Date(w) + 3 * 864e5, Date.now());
+
+function chart(rows, trend) {
   const pts = rows.filter(r => r.d && !r.o);
+  const lines = [["jp", trend.jp], ["kr", trend.kr]];
   if (pts.length < 2) return "";
   const W = 920, H = 240, L = 62, R = 12, T = 10, B = 26;
-  const xs = pts.map(r => +new Date(r.d)), ys = pts.map(r => r.krw);
+  const tw = lines.flatMap(([, t]) => t);
+  const xs = [...pts.map(r => +new Date(r.d)), ...tw.map(w => mid(w[0]))];
+  const ys = [...pts.map(r => r.krw), ...tw.map(w => w[1])];
   const x0 = Math.min(...xs), x1 = Math.max(...xs) || x0 + 1, y1 = Math.max(...ys) * 1.08;
   const X = t => L + (x1 === x0 ? .5 : (t - x0) / (x1 - x0)) * (W - L - R);
   const Y = v => T + (1 - v / y1) * (H - T - B);
@@ -172,7 +188,16 @@ function chart(rows) {
   for (const r of pts) {
     const col = r.c === "jp" ? "var(--jp)" : "var(--kr)";
     s += `<circle cx="${X(+new Date(r.d))}" cy="${Y(r.krw)}" r="4.5" stroke="${col}" stroke-width="2"
-      fill="${r.s === "sold" ? col : "var(--card)"}" fill-opacity=".75"><title>${esc(r.d + " " + won(r.krw) + " " + r.t)}</title></circle>`;
+      stroke-opacity=".45" fill="${r.s === "sold" ? col : "var(--card)"}" fill-opacity=".3"><title>${esc(r.d + " " + won(r.krw) + " " + r.t)}</title></circle>`;
+  }
+  // 주간 중간값 선 (점은 그 주의 한가운데에 찍는다)
+  for (const [c, t] of lines) {
+    if (!t.length) continue;
+    const col = c === "jp" ? "var(--jp)" : "var(--kr)";
+    const P = t.map(w => [X(mid(w[0])), Y(w[1]), w]);
+    s += `<polyline points="${P.map(q => q[0] + "," + q[1]).join(" ")}" fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round"/>`;
+    for (const [x, y, w] of P)
+      s += `<circle cx="${x}" cy="${y}" r="3.5" fill="${col}" stroke="var(--card)" stroke-width="1.5"><title>${esc(w[0] + " 주 · 중간값 " + won(w[1]) + " · " + w[2] + "건")}</title></circle>`;
   }
   return s + "</svg>";
 }
@@ -200,8 +225,9 @@ function openDetail(p) {
         <span><i class="dot" style="background:var(--jp)"></i>일본 낙찰 (원화 환산)</span>
         <span><i class="dot" style="background:var(--kr)"></i>한국 판매완료</span>
         <span><i class="dot" style="border:2px solid var(--kr)"></i>한국 판매중</span>
+        <span>굵은 선 = 주간 중간값</span>
       </div>
-      ${chart(p.rows)}
+      ${chart(p.rows, p.trend)}
       <div class="cols">
         <div><h3>일본 · 야후옥션 낙찰 ${jp.length}건</h3>${table(jp, true)}</div>
         <div><h3>한국 · 번개장터 ${kr.length}건</h3>${table(kr, false)}</div>

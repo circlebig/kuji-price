@@ -1,7 +1,7 @@
 """매칭·집계 후 site/index.html 생성."""
 import json
 from collections import Counter
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from statistics import median
 
 import requests
@@ -31,6 +31,28 @@ def stats(prices):
     med = median(prices)
     kept = [p for p in prices if med * 0.4 <= p <= med * 2.5]
     return {"n": len(kept), "median": round(median(kept)), "min": min(kept), "max": max(kept)}
+
+
+def trend(rows, country):
+    """주(월요일 시작)별 중간값(원화). 미개봉 기준, 동떨어진 값 제외.
+    반환: ([[주 시작일, 중간값, 건수], ...], 최근 4주가 그 전 4주보다 몇 % 변했는지 또는 None)"""
+    pts = [r for r in rows if r["c"] == country and r["d"] and not r["o"]]
+    if not pts:
+        return [], None
+    med = median(r["krw"] for r in pts)
+    pts = [r for r in pts if med * 0.4 <= r["krw"] <= med * 2.5]
+    weeks = {}
+    for r in pts:
+        d = date.fromisoformat(r["d"])
+        weeks.setdefault((d - timedelta(days=d.weekday())).isoformat(), []).append(r["krw"])
+    series = [[w, round(median(v)), len(v)] for w, v in sorted(weeks.items())]
+    today = date.today()
+    last = [r["krw"] for r in pts if (today - date.fromisoformat(r["d"])).days < 28]
+    prev = [r["krw"] for r in pts if 28 <= (today - date.fromisoformat(r["d"])).days < 56]
+    change = None
+    if len(last) >= 3 and len(prev) >= 3:
+        change = round((median(last) - median(prev)) / median(prev) * 100)
+    return series, change
 
 
 def ko_label(prize):
@@ -113,12 +135,15 @@ def run():
             jp_krw = jp["median"] * rate
             gap = round((kr["median"] - jp_krw) / jp_krw * 100)
         rows.sort(key=lambda r: r["d"], reverse=True)
+        jp_trend, jp_chg = trend(rows, "jp")
+        kr_trend, kr_chg = trend(rows, "kr")
         con.execute("INSERT OR REPLACE INTO snapshot VALUES(?,?,?,?,?,?,?)",
                     (datetime.now().strftime("%Y-%m-%d"), p["id"],
                      jp and jp["median"], jp and jp["n"], kr and kr["median"], kr and kr["n"], rate))
         out.append(dict(id=p["id"], work=p["work"], kuji=p["kuji_ko"], kuji_ja=p["kuji_ja"],
                         date=p["release_date"], label=ko_label(p), name_ja=p["name"],
                         image=p["image"], size=p["size"], jp=jp, kr=kr, gap=gap,
+                        trend=dict(jp=jp_trend, kr=kr_trend), chg=dict(jp=jp_chg, kr=kr_chg),
                         rows=[r for c in ("jp", "kr")
                               for r in [x for x in rows if x["c"] == c][:60]]))
     out.sort(key=lambda x: (x["date"] or "", x["id"]), reverse=True)
