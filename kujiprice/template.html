@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>이치방쿠지 한일 시세</title>
+<style>
+:root{
+  --bg:#f6f5f2; --card:#fff; --ink:#1c1b19; --sub:#6b6862; --line:#e4e1da;
+  --jp:#c2410c; --kr:#1d4ed8; --up:#b42318; --down:#067647; --chip:#ece9e2;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#141412; --card:#1e1d1b; --ink:#f1efea; --sub:#a29e95; --line:#34322e;
+    --jp:#fb923c; --kr:#7aa7ff; --up:#f97066; --down:#47cd89; --chip:#2a2926; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.5 "Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif}
+header{padding:28px 16px 12px;max-width:1180px;margin:0 auto}
+h1{margin:0 0 4px;font-size:26px;letter-spacing:-.02em}
+.meta{color:var(--sub);font-size:13px}
+.bar{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar>div{max-width:1180px;margin:0 auto;padding:10px 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+button.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:6px 12px;
+  border-radius:999px;font:inherit;font-size:14px;cursor:pointer}
+button.chip[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+select,input[type=search]{font:inherit;font-size:14px;padding:6px 10px;border:1px solid var(--line);
+  border-radius:8px;background:var(--card);color:var(--ink)}
+input[type=search]{flex:1;min-width:140px}
+label.chk{font-size:14px;color:var(--sub);display:flex;gap:6px;align-items:center}
+main{max-width:1180px;margin:0 auto;padding:16px;display:grid;gap:12px;
+  grid-template-columns:repeat(auto-fill,minmax(330px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;
+  display:grid;grid-template-columns:96px 1fr;gap:12px;cursor:pointer;text-align:left;color:inherit;font:inherit}
+.card:hover{border-color:var(--sub)}
+.card img{width:96px;height:96px;object-fit:contain;background:var(--chip);border-radius:10px}
+.kuji{font-size:12px;color:var(--sub)}
+.label{font-weight:700;font-size:16px;margin:1px 0 6px}
+.prices{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.pr{border-left:3px solid var(--line);padding-left:8px}
+.pr.jp{border-color:var(--jp)} .pr.kr{border-color:var(--kr)}
+.pr b{display:block;font-size:16px;font-variant-numeric:tabular-nums}
+.pr small{color:var(--sub);font-size:12px}
+.gap{margin-top:8px;font-size:13px;font-weight:600}
+.gap.up{color:var(--up)} .gap.down{color:var(--down)} .gap.none{color:var(--sub);font-weight:400}
+.empty{grid-column:1/-1;color:var(--sub);padding:40px 0;text-align:center}
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--card);color:var(--ink);
+  width:min(980px,calc(100vw - 24px));max-height:calc(100vh - 24px);padding:0}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+.dhead{display:flex;gap:14px;padding:16px;border-bottom:1px solid var(--line);align-items:center}
+.dhead img{width:84px;height:84px;object-fit:contain;background:var(--chip);border-radius:10px}
+.dhead h2{margin:0;font-size:19px}
+.dhead .x{margin-left:auto;align-self:flex-start;border:0;background:none;color:var(--sub);font-size:24px;cursor:pointer}
+.dbody{padding:16px;overflow:auto}
+.legend{display:flex;gap:14px;font-size:13px;color:var(--sub);margin:4px 0 8px;flex-wrap:wrap}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+svg text{fill:var(--sub);font-size:11px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+@media (max-width:760px){.cols{grid-template-columns:1fr}}
+h3{font-size:14px;margin:0 0 6px}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+td{padding:5px 6px;border-top:1px solid var(--line);vertical-align:top}
+td.n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+td.d{white-space:nowrap;color:var(--sub)}
+a{color:inherit}
+.tag{font-size:11px;border-radius:4px;padding:0 5px;background:var(--chip);color:var(--sub);margin-left:4px;white-space:nowrap}
+tr.off td{opacity:.5}
+footer{max-width:1180px;margin:0 auto;padding:8px 16px 40px;color:var(--sub);font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <h1>이치방쿠지 한일 시세</h1>
+  <div class="meta" id="meta"></div>
+</header>
+<div class="bar"><div>
+  <span id="chips"></span>
+  <select id="sort" aria-label="정렬">
+    <option value="date">최신 쿠지순</option>
+    <option value="gapdesc">한국이 비싼 순</option>
+    <option value="gapasc">한국이 싼 순</option>
+    <option value="price">일본 시세 높은 순</option>
+  </select>
+  <label class="chk"><input type="checkbox" id="both" checked> 한일 시세 모두 있는 것만</label>
+  <input type="search" id="q" placeholder="캐릭터·쿠지 이름 검색">
+</div></div>
+<main id="grid"></main>
+<footer id="foot"></footer>
+<dialog id="dlg"></dialog>
+<script>
+const D = /*DATA*/null;
+const won = n => "₩" + Math.round(n).toLocaleString("ko-KR");
+const yen = n => "¥" + Math.round(n).toLocaleString("ko-KR");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let work = "all";
+
+document.getElementById("meta").textContent =
+  `일본 야후옥션 낙찰가 · 한국 번개장터 가격 · 최근 ${D.window}일 중간값 · 환율 ¥1 = ₩${D.fx} · ${D.generated} 수집`;
+document.getElementById("foot").textContent =
+  "미개봉 기준 추정치입니다. 개봉·하자품, 묶음 판매, 동떨어진 가격은 계산에서 뺐습니다. " +
+  "제목만으로 자동 분류하므로 잘못 분류된 매물이 섞일 수 있습니다. 상품 이미지는 이치방쿠지 공식 사이트의 것입니다.";
+
+const chips = document.getElementById("chips");
+[["all","전체"], ...Object.entries(D.works)].forEach(([k, v]) => {
+  const b = document.createElement("button");
+  b.className = "chip"; b.textContent = v; b.setAttribute("aria-pressed", k === work);
+  b.onclick = () => { work = k; [...chips.children].forEach(c => c.setAttribute("aria-pressed", c === b)); render(); };
+  chips.append(b, " ");
+});
+
+function gapHtml(p) {
+  if (p.gap == null) return `<div class="gap none">${p.jp || p.kr ? "한쪽 시세만 있음" : "매물 없음"}</div>`;
+  const low = p.jp.n < 3 || p.kr.n < 3 ? ' <span class="tag">표본 적음</span>' : "";
+  if (p.gap > 0) return `<div class="gap up">한국이 ${p.gap}% 비쌈${low}</div>`;
+  if (p.gap < 0) return `<div class="gap down">한국이 ${-p.gap}% 쌈${low}</div>`;
+  return `<div class="gap none">가격 차이 없음</div>`;
+}
+
+function render() {
+  const q = document.getElementById("q").value.trim().toLowerCase();
+  const both = document.getElementById("both").checked;
+  const sort = document.getElementById("sort").value;
+  let list = D.prizes.filter(p => (work === "all" || p.work === work)
+    && (!both || (p.jp && p.kr))
+    && (!q || (p.label + p.kuji + p.name_ja + p.kuji_ja + D.works[p.work]).toLowerCase().includes(q)));
+  const g = p => p.gap == null || p.jp.n < 3 || p.kr.n < 3 ? null : p.gap;  // 표본 적은 것은 정렬에서 뒤로
+  if (sort === "gapdesc") list.sort((a, b) => (g(b) ?? -1e9) - (g(a) ?? -1e9));
+  if (sort === "gapasc") list.sort((a, b) => (g(a) ?? 1e9) - (g(b) ?? 1e9));
+  if (sort === "price") list.sort((a, b) => (b.jp?.median ?? 0) - (a.jp?.median ?? 0));
+  const grid = document.getElementById("grid");
+  grid.innerHTML = list.length ? "" : `<div class="empty">조건에 맞는 상품이 없습니다.</div>`;
+  for (const p of list) {
+    const el = document.createElement("button");
+    el.className = "card";
+    el.innerHTML = `<img loading="lazy" src="${esc(p.image)}" alt="">
+      <div>
+        <div class="kuji">${esc(D.works[p.work])} · ${esc(p.kuji)}</div>
+        <div class="label">${esc(p.label)}</div>
+        <div class="prices">
+          <div class="pr jp"><small>일본 낙찰가</small>
+            <b>${p.jp ? won(p.jp.median * D.fx) : "–"}</b>
+            <small>${p.jp ? yen(p.jp.median) + " · " + p.jp.n + "건" : "매물 없음"}</small></div>
+          <div class="pr kr"><small>한국 ${p.kr ? esc(p.kr.basis.split("(")[0]) : "가격"}</small>
+            <b>${p.kr ? won(p.kr.median) : "–"}</b>
+            <small>${p.kr ? p.kr.n + "건" : "매물 없음"}</small></div>
+        </div>
+        ${gapHtml(p)}
+      </div>`;
+    el.onclick = () => openDetail(p);
+    grid.append(el);
+  }
+}
+
+function chart(rows) {
+  const pts = rows.filter(r => r.d && !r.o);
+  if (pts.length < 2) return "";
+  const W = 920, H = 240, L = 62, R = 12, T = 10, B = 26;
+  const xs = pts.map(r => +new Date(r.d)), ys = pts.map(r => r.krw);
+  const x0 = Math.min(...xs), x1 = Math.max(...xs) || x0 + 1, y1 = Math.max(...ys) * 1.08;
+  const X = t => L + (x1 === x0 ? .5 : (t - x0) / (x1 - x0)) * (W - L - R);
+  const Y = v => T + (1 - v / y1) * (H - T - B);
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="가격 분포">`;
+  for (let i = 0; i <= 4; i++) {
+    const v = y1 * i / 4;
+    s += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/>
+          <text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end">${won(v)}</text>`;
+  }
+  const fmt = t => new Date(t).toISOString().slice(5, 10);
+  s += `<text x="${L}" y="${H - 6}">${fmt(x0)}</text><text x="${W - R}" y="${H - 6}" text-anchor="end">${fmt(x1)}</text>`;
+  for (const r of pts) {
+    const col = r.c === "jp" ? "var(--jp)" : "var(--kr)";
+    s += `<circle cx="${X(+new Date(r.d))}" cy="${Y(r.krw)}" r="4.5" stroke="${col}" stroke-width="2"
+      fill="${r.s === "sold" ? col : "var(--card)"}" fill-opacity=".75"><title>${esc(r.d + " " + won(r.krw) + " " + r.t)}</title></circle>`;
+  }
+  return s + "</svg>";
+}
+
+function table(rows, jp) {
+  if (!rows.length) return `<p class="meta">매칭된 매물이 없습니다.</p>`;
+  return `<div class="scroll"><table>` + rows.map(r => `<tr class="${r.o ? "off" : ""}">
+    <td class="d">${esc(r.d.slice(5))}</td>
+    <td><a href="${esc(r.u)}" target="_blank" rel="noopener noreferrer">${esc(r.t)}</a>
+      ${r.s === "selling" ? '<span class="tag">판매중</span>' : ""}${r.o ? '<span class="tag">개봉·하자</span>' : ""}</td>
+    <td class="n">${jp ? yen(r.p) + "<br><small>" + won(r.krw) + "</small>" : won(r.p)}</td></tr>`).join("") + `</table></div>`;
+}
+
+function openDetail(p) {
+  const dlg = document.getElementById("dlg");
+  const jp = p.rows.filter(r => r.c === "jp"), kr = p.rows.filter(r => r.c === "kr");
+  dlg.innerHTML = `<div class="dhead"><img src="${esc(p.image)}" alt="">
+      <div><div class="kuji">${esc(D.works[p.work])} · ${esc(p.kuji)} · ${esc(p.date || "발매일 미정")} 발매</div>
+        <h2>${esc(p.label)}</h2>
+        <div class="kuji">${esc(p.kuji_ja)} / ${esc(p.name_ja)} ${p.size ? "· " + esc(p.size) : ""}</div>
+        ${gapHtml(p)}</div>
+      <button class="x" aria-label="닫기">×</button></div>
+    <div class="dbody">
+      <div class="legend">
+        <span><i class="dot" style="background:var(--jp)"></i>일본 낙찰 (원화 환산)</span>
+        <span><i class="dot" style="background:var(--kr)"></i>한국 판매완료</span>
+        <span><i class="dot" style="border:2px solid var(--kr)"></i>한국 판매중</span>
+      </div>
+      ${chart(p.rows)}
+      <div class="cols">
+        <div><h3>일본 · 야후옥션 낙찰 ${jp.length}건</h3>${table(jp, true)}</div>
+        <div><h3>한국 · 번개장터 ${kr.length}건</h3>${table(kr, false)}</div>
+      </div>
+    </div>`;
+  dlg.querySelector(".x").onclick = () => dlg.close();
+  dlg.onclick = e => { if (e.target === dlg) dlg.close(); };
+  dlg.showModal();
+}
+
+["q", "both", "sort"].forEach(id => document.getElementById(id).addEventListener("input", render));
+render();
+
+// 새로 집계되면 페이지를 자동으로 다시 불러온다 (상세 창이 열려 있으면 닫힐 때까지 기다림)
+setInterval(async () => {
+  try {
+    const v = (await (await fetch("version.txt", {cache: "no-store"})).text()).trim();
+    if (v && v !== D.generated && !document.getElementById("dlg").open) location.reload();
+  } catch (e) { /* 파일로 직접 열었거나 서버가 꺼진 경우: 그냥 둔다 */ }
+}, 60000);
+</script>
+</body>
+</html>

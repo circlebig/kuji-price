@@ -1,0 +1,6 @@
+# 수집 데이터와 생성물 (run.py 로 다시 만들 수 있음)
+data/
+site/
+__pycache__/
+*.pyc
+.claude/settings.local.json
