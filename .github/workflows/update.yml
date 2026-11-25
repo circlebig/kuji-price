@@ -1,0 +1,90 @@
+name: 시세 갱신 및 배포
+
+on:
+  schedule:
+    - cron: "17 */3 * * *"   # 3시간마다 (UTC 기준 매 3시간 17분)
+  workflow_dispatch:
+    inputs:
+      full:
+        description: "전체 수집 (카탈로그 포함, 약 20분)"
+        type: boolean
+        default: false
+  push:
+    branches: [main]
+    paths: ["kujiprice/**", "run.py", ".github/workflows/update.yml"]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: update
+  cancel-in-progress: false
+
+env:
+  TZ: Asia/Seoul
+  PYTHONUTF8: "1"
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+
+      # 수집 DB는 저장소에 넣지 않고 Actions 캐시로 다음 실행에 넘긴다
+      - name: 이전 수집 DB 복원
+        id: db
+        uses: actions/cache/restore@v4
+        with:
+          path: data/kuji.sqlite
+          key: kuji-db-${{ github.run_id }}
+          restore-keys: kuji-db-
+
+      - name: 수집 방식 결정
+        id: mode
+        run: |
+          # DB가 없거나, 수동으로 전체 수집을 골랐거나, 한국 시간 새벽 3~5시대 실행이면 전체 수집
+          hour=$(date +%-H)
+          if [ ! -f data/kuji.sqlite ] || [ "${{ inputs.full }}" = "true" ] || { [ "${{ github.event_name }}" = "schedule" ] && [ "$hour" -ge 3 ] && [ "$hour" -lt 6 ]; }; then
+            echo "cmd=all" >> "$GITHUB_OUTPUT"
+          else
+            echo "cmd=quick" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 수집 및 집계
+        run: python run.py ${{ steps.mode.outputs.cmd }}
+
+      - name: 결과 점검
+        run: |
+          # 수집이 막혀 빈 페이지가 배포되는 것을 막는다
+          python - <<'PY'
+          import json, sys
+          d = json.load(open("data/data.json", encoding="utf-8"))
+          jp = sum(1 for p in d["prizes"] if p["jp"])
+          kr = sum(1 for p in d["prizes"] if p["kr"])
+          print(f"일본 시세 {jp}종, 한국 시세 {kr}종 / 전체 {len(d['prizes'])}종")
+          if jp < 20 or kr < 20:
+              sys.exit("시세가 잡힌 상품이 너무 적습니다. 수집이 막혔을 수 있어 배포하지 않습니다.")
+          PY
+
+      - name: 수집 DB 저장
+        if: always() && hashFiles('data/kuji.sqlite') != ''
+        uses: actions/cache/save@v4
+        with:
+          path: data/kuji.sqlite
+          key: kuji-db-${{ github.run_id }}
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4
