@@ -52,6 +52,9 @@ main{max-width:1180px;margin:0 auto;padding:16px;display:grid;gap:12px;
 .afields{display:flex;flex-wrap:wrap;gap:10px 18px;margin:10px 0 4px;align-items:end}
 .afields label{display:grid;gap:3px;font-size:12px;color:var(--sub)}
 .afields span{color:var(--ink);font-size:14px}
+.afields select{font:inherit;padding:5px 8px;border:1px solid var(--line);border-radius:8px;
+  background:var(--card);color:var(--ink)}
+.afields input:disabled{opacity:.4}
 .afields input{width:84px;font:inherit;padding:5px 8px;border:1px solid var(--line);border-radius:8px;
   background:var(--card);color:var(--ink);text-align:right}
 .land{margin-top:6px;font-size:13px;color:var(--sub)}
@@ -105,13 +108,19 @@ footer{max-width:1180px;margin:0 auto;padding:8px 16px 40px;color:var(--sub);fon
   <summary>직구 비용 가정 <span id="assumeSum"></span></summary>
   <div class="afields">
     <label>일본 내 배송비 <span><input type="number" id="a_dom" min="0" step="100"> 엔</span></label>
-    <label>구매대행 수수료 <span><input type="number" id="a_fee" min="0" step="0.5"> %</span></label>
-    <label>국제 배송비 <span><input type="number" id="a_intl" min="0" step="1000"> 원</span></label>
+    <label>구매대행 수수료 <span><select id="a_feeMode">
+      <option value="bidbuy">비드바이 요금표 (일반회원)</option>
+      <option value="pct">정률로 직접 입력</option></select></span></label>
+    <label>정률 수수료 <span><input type="number" id="a_fee" min="0" step="0.5"> %</span></label>
+    <label>국제 배송비 <span><input type="number" id="a_intl" min="0" step="50"> 엔</span></label>
     <label>면세 한도 <span><input type="number" id="a_free" min="0" step="10"> 달러</span></label>
     <label>한도 초과 시 관부가세 <span><input type="number" id="a_tax" min="0" step="0.1"> %</span></label>
     <button class="chip" id="a_reset" type="button">기본값으로</button>
   </div>
-  <p class="meta">피규어 1개를 일본 야후옥션에서 낙찰받아 구매대행으로 들여오는 경우의 추정입니다. 대행업체와 무게에 따라 달라지니 본인 조건에 맞게 고쳐 쓰세요. 값은 이 브라우저에만 저장됩니다.</p>
+  <p class="meta">피규어 1개를 일본 야후옥션에서 낙찰받아 구매대행으로 들여오는 경우의 추정입니다.
+    수수료와 국제 배송비 기본값은 비드바이코리아가 공개한 요금표(2026년 6월 기준, 일반회원, 항공특송 1kg 이하)를 따랐습니다.
+    일본 내 배송비와 관부가세율은 통상적인 수준으로 잡은 값이라 판매자와 품목 분류에 따라 다를 수 있습니다.
+    본인 조건에 맞게 고쳐 쓰세요. 값은 이 브라우저에만 저장됩니다.</p>
 </details>
 </div>
 <main id="grid"></main>
@@ -128,21 +137,33 @@ document.getElementById("meta").textContent =
   `일본 야후옥션 낙찰가 · 한국 번개장터 가격 · 최근 ${D.window}일 중간값 · 환율 ¥1 = ₩${D.fx} · ${D.generated} 수집`;
 
 // ── 직구 비용 가정 (이용자가 고칠 수 있고 이 브라우저에만 저장) ──
-const A_DEFAULT = {dom: 1000, fee: 8, intl: 18000, free: 150, tax: 18.8};
-const A_KEY = "kujiAssume";
+// dom: 일본 내 배송비(엔), feeMode: 수수료 방식, fee: 정률 수수료(%), intl: 국제 배송비(엔),
+// free: 면세 한도(달러), tax: 한도 초과 시 관부가세율(%)
+const A_DEFAULT = {dom: 1000, feeMode: "bidbuy", fee: 8, intl: 1350, free: 150, tax: 18.8};
+const A_KEY = "kujiAssume2";
 let A = {...A_DEFAULT};
 try { Object.assign(A, JSON.parse(localStorage.getItem(A_KEY) || "{}")); } catch (e) {}
-for (const k in A_DEFAULT) if (!(A[k] >= 0)) A[k] = A_DEFAULT[k];
+for (const k in A_DEFAULT) if (k !== "feeMode" && !(A[k] >= 0)) A[k] = A_DEFAULT[k];
+if (!["bidbuy", "pct"].includes(A.feeMode)) A.feeMode = A_DEFAULT.feeMode;
+
+// 구매대행 수수료(엔). 비드바이코리아 일본 요금표(일반회원) + 송금수수료 300엔
+function feeYen(jpy) {
+  if (A.feeMode === "pct") return jpy * A.fee / 100;
+  const tier = jpy <= 3000 ? 800 : jpy <= 12000 ? 1000 : jpy <= 50000 ? jpy * 0.10
+             : jpy <= 150000 ? 6000 : jpy * 0.05;
+  return tier + 300;
+}
 
 // 일본 낙찰가(엔) -> 한국에서 받기까지의 예상 비용(원)과 내역
 function landed(jpy) {
-  const goodsYen = jpy + A.dom;                     // 낙찰가 + 일본 내 배송비
-  const fee = goodsYen * A.fee / 100 * D.fx;        // 구매대행 수수료
+  const goodsYen = jpy + A.dom;                     // 물품가격 = 낙찰가 + 일본 내 배송비
   const goods = goodsYen * D.fx;
-  const taxed = goodsYen * D.fx_usd > A.free;       // 면세 한도 초과 여부
-  const tax = taxed ? goods * A.tax / 100 : 0;
-  return {price: jpy * D.fx, dom: A.dom * D.fx, fee, intl: A.intl, tax, taxed,
-          total: goods + fee + A.intl + tax};
+  const fee = feeYen(jpy) * D.fx;                   // 구매대행 수수료
+  const intl = A.intl * D.fx;                       // 국제 배송비
+  const taxed = goodsYen * D.fx_usd > A.free;       // 면세 여부는 물품가격으로 판단(국제 운임 제외)
+  const tax = taxed ? (goods + intl) * A.tax / 100 : 0;  // 과세되면 운임까지 포함해 계산
+  return {price: jpy * D.fx, dom: A.dom * D.fx, fee, intl, tax, taxed,
+          total: goods + fee + intl + tax};
 }
 // 직구 예상가 대비 한국 가격 차이(%). 비교가 보류된 상품은 null
 const gapOf = p => p.jp && p.kr && !p.hold
@@ -182,8 +203,8 @@ function costTable(p) {
   return `<h3>직구 예상 비용</h3><table class="cost">
     ${row("낙찰가 중간값 (" + yen(p.jp.median) + ")", won(L.price))}
     ${row("일본 내 배송비", won(L.dom))}
-    ${row("구매대행 수수료 " + A.fee + "%", won(L.fee))}
-    ${row("국제 배송비", won(L.intl))}
+    ${row(A.feeMode === "pct" ? "구매대행 수수료 " + A.fee + "%" : "구매대행 수수료 (요금표 + 송금 300엔)", won(L.fee))}
+    ${row("국제 배송비 (" + yen(A.intl) + ")", won(L.intl))}
     ${row(L.taxed ? "관부가세 " + A.tax + "% (면세 한도 $" + A.free + " 초과)" : "관부가세 (면세 한도 $" + A.free + " 이하)", won(L.tax))}
     ${row("직구 예상 합계", won(L.total), "sum")}
     ${p.kr ? row("한국 " + esc(p.kr.basis), won(p.kr.median)) : ""}
@@ -315,16 +336,17 @@ function openDetail(p) {
 // 가정 입력란: 값이 바뀌면 저장하고 전체를 다시 계산
 function showAssume() {
   for (const k in A_DEFAULT) document.getElementById("a_" + k).value = A[k];
+  document.getElementById("a_fee").disabled = A.feeMode !== "pct";
   document.getElementById("assumeSum").textContent =
-    `일본 내 ${yen(A.dom)} · 수수료 ${A.fee}% · 국제배송 ${won(A.intl)} · $${A.free} 초과 시 세금 ${A.tax}%`;
+    `일본 내 ${yen(A.dom)} · 수수료 ${A.feeMode === "pct" ? A.fee + "%" : "비드바이 요금표"} · 국제배송 ${yen(A.intl)} · $${A.free} 초과 시 세금 ${A.tax}%`;
 }
 function saveAssume() {
   try { localStorage.setItem(A_KEY, JSON.stringify(A)); } catch (err) {}
   showAssume(); render();
 }
 for (const k in A_DEFAULT) document.getElementById("a_" + k).addEventListener("change", e => {
-  const v = parseFloat(e.target.value);
-  A[k] = v >= 0 ? v : A_DEFAULT[k];
+  if (k === "feeMode") A[k] = e.target.value;
+  else { const v = parseFloat(e.target.value); A[k] = v >= 0 ? v : A_DEFAULT[k]; }
   saveAssume();
 });
 document.getElementById("a_reset").onclick = () => { A = {...A_DEFAULT}; saveAssume(); };
