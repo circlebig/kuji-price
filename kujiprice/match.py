@@ -46,8 +46,19 @@ def _any_group(groups, text):
     return any(all(norm(tok) in text for tok in g) for g in groups)
 
 
-def kuji_entry(kuji_name):
-    """공식 쿠지명 -> (그룹 번호, 설정). 재판매분은 같은 그룹으로 묶인다."""
+def subtitle_of(kuji_name, work_names):
+    """공식 쿠지명에서 브랜드·작품명을 뺀 부제. (예: "一番くじ 進撃の巨人 ～心臓を捧げよ～" -> "心臓を捧げよ")"""
+    s = unicodedata.normalize("NFKC", kuji_name)
+    s = re.sub(r"[(（][^)）]*[)）]", " ", s)  # (再販売) 같은 꼬리표
+    for w in ["一番くじちょこっと", "一番くじ", "劇場版", "TVアニメ", "アニメ", *work_names]:
+        s = s.replace(unicodedata.normalize("NFKC", w), " ")
+    return re.sub(r"[\s~〜・『』「」【】!\-‐—–_/:]+", " ", s).strip()
+
+
+def kuji_entry(kuji_name, work_names=()):
+    """공식 쿠지명 -> (그룹, 설정). 재판매분은 같은 그룹으로 묶인다.
+    사전(names.KUJI)에 없는 새 쿠지는 부제를 일본어 키워드로 삼아 자동 항목을 만든다.
+    이 경우 한국어 키워드가 없으므로 한국 매물은 LLM 분류에 맡긴다."""
     n = norm(kuji_name)
     for i, (needle, cfg) in enumerate(KUJI):
         if norm(needle) in n:
@@ -55,13 +66,33 @@ def kuji_entry(kuji_name):
             cfg.setdefault("ja", [[needle]])
             cfg.setdefault("ko", [])
             return i, cfg
-    return None, None
+    sub = subtitle_of(kuji_name, work_names)
+    if len(norm(sub)) < 3:
+        return None, None
+    return "auto" + norm(sub), dict(ja=[[sub]], ko=[], auto=True)
 
 
 def prize_chars(prize_name):
     keys = [k for k in CHARS if k.strip() and k in prize_name + " "]
     # 긴 이름에 포함된 짧은 키(예: リカ ⊂ 祈本里香 와 별개)는 그대로 둔다
     return keys
+
+
+_GENERIC = {norm(x) for x in """フィギュア masterlise extra plus expiece megaimpact figure
+ラストワン ver バージョン スペシャルカラー collection masterelive""".split()}
+
+
+def prize_extras(prize_name, chars):
+    """상 이름에서 캐릭터·흔한 단어를 뺀 고유 단어 (예: シルバーエイジ, 覚醒ver, 10thanniversary)."""
+    out = []
+    for tok in re.split(r"[\s～~・＆&:：ｰ（）()]+", unicodedata.normalize("NFKC", prize_name)):
+        n = norm(tok)
+        if len(n) < 3 or "賞" in n or n in _GENERIC:
+            continue
+        if any(norm(c.strip()) in n or n in norm(c) for c in CHARS):
+            continue
+        out.append(n)
+    return out
 
 
 def is_target(prize):
@@ -79,6 +110,7 @@ class Matcher:
         self.all_cfgs = all_cfgs
         for p in prizes:
             p["chars"] = prize_chars(p["name"])
+            p["extras"] = prize_extras(p["name"], p["chars"])
             self.by_key.setdefault((p["work"], p["letter"]), []).append(p)
 
     @staticmethod
@@ -97,7 +129,7 @@ class Matcher:
         cands = self.by_key.get((work, next(iter(letters))), [])
         idx = 0 if lang == "ja" else 1
         day = (dated or "")[:10]
-        hit = []
+        hit, found_of = [], {}
         for p in cands:
             if p["release_date"] and day and day < p["release_date"]:
                 continue  # 발매 전 날짜의 매물은 다른(옛) 쿠지
@@ -105,14 +137,28 @@ class Matcher:
             if p["chars"] and found < min(2, len(p["chars"])):
                 continue  # 2명 이상인 상은 2명 이상 언급돼야 함
             hit.append(p)
+            found_of[p["id"]] = found
         if not hit:
             return None, "캐릭터 불일치"
+        # 캐릭터가 2명 이상 맞은 상이 있으면 그쪽을 우선 (예: A賞 デンジ＆レゼ vs A賞 レゼ)
+        top = max(found_of.values())
+        if top >= 2:
+            hit = [p for p in hit if found_of[p["id"]] == top]
+        # 상 이름의 고유 단어가 제목에 있으면 그 상으로 본다 (예: シルバーエイジ)
+        score = {p["id"]: sum(x in t for x in p["extras"]) for p in hit}
+        distinct = [p for p in hit if score[p["id"]] == max(score.values()) > 0]
+        if distinct and len(distinct) < len(hit):
+            hit = distinct
+        else:
+            distinct = []
         # 제목에 적힌 부제가 가리키는 쿠지들
         named = {g for g, cfg in self.all_cfgs.get(work, []) if self._keyed(cfg, lang, t)}
         if named:
             pool = [p for p in hit if p["group"] in named]
             if not pool:
                 return None, "다른 쿠지"
+        elif distinct and len({p["group"] for p in distinct}) == 1:
+            pool = distinct
         else:
             # 부제가 없는 매물은 최근 발매된 쿠지로만 인정한다.
             # (목록에 없는 옛 쿠지의 같은 상·같은 캐릭터와 섞이는 것을 막기 위함)

@@ -207,7 +207,7 @@ function table(rows, jp) {
   return `<div class="scroll"><table>` + rows.map(r => `<tr class="${r.o ? "off" : ""}">
     <td class="d">${esc(r.d.slice(5))}</td>
     <td><a href="${esc(r.u)}" target="_blank" rel="noopener noreferrer">${esc(r.t)}</a>
-      ${r.s === "selling" ? '<span class="tag">판매중</span>' : ""}${r.o ? '<span class="tag">개봉·하자</span>' : ""}</td>
+      ${r.s === "selling" ? '<span class="tag">판매중</span>' : ""}${r.o ? '<span class="tag">개봉·하자</span>' : ""}${r.m === "llm" ? '<span class="tag">AI 분류</span>' : ""}</td>
     <td class="n">${jp ? yen(r.p) + "<br><small>" + won(r.krw) + "</small>" : won(r.p)}</td></tr>`).join("") + `</table></div>`;
 }
 

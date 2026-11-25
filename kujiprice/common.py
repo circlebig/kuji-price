@@ -1,5 +1,6 @@
 """공통 설정, HTTP, DB."""
 import json
+import os
 import sqlite3
 import time
 from pathlib import Path
@@ -10,6 +11,14 @@ ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
 DATA.mkdir(exist_ok=True)
 DB_PATH = DATA / "kuji.sqlite"
+
+# .env 의 KEY=VALUE 를 환경변수로 읽는다(이미 설정된 값은 덮어쓰지 않음). 비밀값은 여기에만 둔다.
+_env = ROOT / ".env"
+if _env.exists():
+    for _line in _env.read_text(encoding="utf-8").splitlines():
+        if "=" in _line and not _line.lstrip().startswith("#"):
+            _k, _v = _line.split("=", 1)
+            os.environ.setdefault(_k.strip(), _v.strip())
 
 # 수집 대상 작품. kuji_id 는 이치방쿠지 공식 사이트(1kuji.com)의 캐릭터 검색 번호.
 WORKS = {
@@ -68,6 +77,14 @@ CREATE TABLE IF NOT EXISTS listing(
   url TEXT, image TEXT,
   first_seen TEXT, last_seen TEXT,
   PRIMARY KEY(source, item_id));
+CREATE TABLE IF NOT EXISTS llm_match(  -- 규칙으로 못 잡은 제목을 LLM이 분류한 결과(캐시)
+  source TEXT, item_id TEXT, title TEXT,
+  prize_id TEXT,                  -- NULL 이면 "해당 없음"
+  named TEXT,                     -- LLM이 "쿠지 부제"라고 짚은 제목 속 문구 (없으면 빈 문자열)
+  model TEXT,
+  PRIMARY KEY(source, item_id));
+CREATE TABLE IF NOT EXISTS auto_name(  -- 사전에 없는 쿠지·상 이름의 LLM 한국어 번역
+  ja TEXT PRIMARY KEY, ko TEXT);
 CREATE TABLE IF NOT EXISTS snapshot(   -- 하루 한 줄씩 쌓이는 시세 기록
   day TEXT, prize_id TEXT, jp_median INTEGER, jp_n INTEGER,
   kr_median INTEGER, kr_n INTEGER, fx REAL,

@@ -2,8 +2,9 @@
 
   python run.py catalog   공식 사이트에서 쿠지·상 목록 수집
   python run.py collect   야후옥션(일본)·번개장터(한국) 매물 전체 수집 (약 20분)
+  python run.py llm       규칙으로 못 잡은 제목을 LLM으로 분류 (.env 설정 필요, 없으면 건너뜀)
   python run.py build     매칭·집계 후 site/index.html 생성
-  python run.py all       위 세 단계를 순서대로
+  python run.py all       위 네 단계를 순서대로
   python run.py quick     새 매물만 빠르게 수집하고 집계 (몇 분)
   python run.py watch [분]  계속 켜 두는 자동 갱신. 기본 60분마다 quick,
                             하루에 한 번은 카탈로그와 전체 수집까지 수행. Ctrl+C로 종료.
@@ -23,6 +24,9 @@ def step(cmd):
     if cmd in ("collect", "all", "quick"):
         from kujiprice import sources
         sources.run(quick=(cmd == "quick"))
+    if cmd in ("llm", "all", "quick"):
+        from kujiprice import llm
+        llm.run()
     if cmd in ("build", "all", "quick"):
         from kujiprice import build
         build.run()
@@ -48,7 +52,7 @@ def main():
     cmd = sys.argv[1] if len(sys.argv) > 1 else "all"
     if cmd == "watch":
         watch(int(sys.argv[2]) if len(sys.argv) > 2 else 60)
-    elif cmd in ("catalog", "collect", "build", "all", "quick"):
+    elif cmd in ("catalog", "collect", "llm", "build", "all", "quick"):
         step(cmd)
     else:
         print(__doc__)
