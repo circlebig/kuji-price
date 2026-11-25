@@ -28,6 +28,8 @@ WORKS = {
            "ko_keys": ["드래곤볼"]},
     "kny": {"ko": "귀멸의 칼날", "ja": "鬼滅の刃", "kuji_id": 584,
             "ko_keys": ["귀멸의 칼날", "귀멸의칼날", "귀멸", "귀칼"]},
+    "nrt": {"ko": "나루토", "ja": "NARUTO", "kuji_id": 6, "ja_keys": ["NARUTO", "ナルト"],
+            "ko_keys": ["나루토"]},
 }
 
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "

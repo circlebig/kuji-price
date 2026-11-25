@@ -79,7 +79,7 @@ def ko_label(prize):
     letter = "라스트원상" if prize["letter"] == "LAST" else f"{prize['letter']}상"
     names = []
     for c in prize["chars"]:
-        ko = CHARS[c][1][0]
+        ko = CHARS[c][1][0].replace("×2", "")  # "나루토×2"는 매칭용 표기라 화면에는 이름만
         if ko not in names:
             names.append(ko)
     return f"{letter} {' & '.join(names)}".strip()
