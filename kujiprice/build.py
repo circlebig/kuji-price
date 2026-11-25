@@ -13,15 +13,32 @@ from .names import CHARS
 WINDOW_DAYS = 120     # 시세 계산에 쓰는 기간
 MAX_AGE_YEARS = 3     # 이보다 오래된 쿠지는 추적하지 않음(옛 상품과 헷갈리는 것 방지)
 FX_FALLBACK = 9.0     # 환율 조회 실패 시 1엔당 원화
+FX_USD_FALLBACK = 0.0065  # 환율 조회 실패 시 1엔당 달러
+# 한일 비교를 화면에 내보내는 최소 조건
+MIN_JP, MIN_KR = 5, 3  # 나라별 최소 매물 수
+MAX_RATIO = 2.5        # 한국가/일본가(환산)가 이 배수를 넘거나 그 역수보다 작으면 보류
 
 
 def fx_rate():
     try:
         r = requests.get("https://open.er-api.com/v6/latest/JPY", timeout=20).json()
-        return float(r["rates"]["KRW"]), r.get("time_last_update_utc", "")
+        return float(r["rates"]["KRW"]), float(r["rates"]["USD"]), r.get("time_last_update_utc", "")
     except Exception as e:  # 환율 API 장애 시에도 페이지는 만들어지게
         print("  ! 환율 조회 실패, 임시값 사용:", e)
-        return FX_FALLBACK, "조회 실패(임시값)"
+        return FX_FALLBACK, FX_USD_FALLBACK, "조회 실패(임시값)"
+
+
+def hold_reason(jp, kr, rate):
+    """한일 가격 비교를 보여 주기엔 믿기 어려운 경우 그 사유. 믿을 만하면 None."""
+    if not jp or not kr:
+        return None
+    if jp["n"] < MIN_JP or kr["n"] < MIN_KR:
+        return "표본 부족"
+    ratio = kr["median"] / (jp["median"] * rate)
+    if not 1 / MAX_RATIO <= ratio <= MAX_RATIO:
+        # 같은 상품이 이 정도로 벌어지는 일은 드물다. 대개 다른 상품이 섞인 것.
+        return "가격 차이가 비정상적"
+    return None
 
 
 def stats(prices):
@@ -102,7 +119,7 @@ def run():
     con = db()
     prizes, all_cfgs = load_prizes(con)
     matcher = Matcher(prizes, all_cfgs)
-    rate, rate_time = fx_rate()
+    rate, usd, rate_time = fx_rate()
     since = (datetime.now(timezone.utc) - timedelta(days=WINDOW_DAYS)).isoformat()
 
     matched, reasons = {}, Counter()
@@ -134,6 +151,7 @@ def run():
         if jp and kr:
             jp_krw = jp["median"] * rate
             gap = round((kr["median"] - jp_krw) / jp_krw * 100)
+        hold = hold_reason(jp, kr, rate)
         rows.sort(key=lambda r: r["d"], reverse=True)
         jp_trend, jp_chg = trend(rows, "jp")
         kr_trend, kr_chg = trend(rows, "kr")
@@ -142,13 +160,13 @@ def run():
                      jp and jp["median"], jp and jp["n"], kr and kr["median"], kr and kr["n"], rate))
         out.append(dict(id=p["id"], work=p["work"], kuji=p["kuji_ko"], kuji_ja=p["kuji_ja"],
                         date=p["release_date"], label=ko_label(p), name_ja=p["name"],
-                        image=p["image"], size=p["size"], jp=jp, kr=kr, gap=gap,
+                        image=p["image"], size=p["size"], jp=jp, kr=kr, gap=gap, hold=hold,
                         trend=dict(jp=jp_trend, kr=kr_trend), chg=dict(jp=jp_chg, kr=kr_chg),
                         rows=[r for c in ("jp", "kr")
                               for r in [x for x in rows if x["c"] == c][:60]]))
     out.sort(key=lambda x: (x["date"] or "", x["id"]), reverse=True)
 
-    data = dict(generated=datetime.now().strftime("%Y-%m-%d %H:%M:%S"), fx=round(rate, 3),
+    data = dict(generated=datetime.now().strftime("%Y-%m-%d %H:%M:%S"), fx=round(rate, 3), fx_usd=round(usd, 6),
                 fx_time=rate_time, window=WINDOW_DAYS,
                 works={k: v["ko"] for k, v in WORKS.items()}, prizes=out)
     (DATA / "data.json").write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
