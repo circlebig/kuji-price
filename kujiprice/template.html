@@ -4,137 +4,224 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
+<meta name="description" content="이치방쿠지 피규어의 일본 낙찰가와 한국 중고가를 비교해, 직구와 국내 구매 중 어느 쪽이 이득인지 보여 줍니다.">
 <title>이치방쿠지 한일 시세</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 :root{
-  --bg:#f6f5f2; --card:#fff; --ink:#1c1b19; --sub:#6b6862; --line:#e4e1da;
-  --jp:#c2410c; --kr:#1d4ed8; --up:#b42318; --down:#067647; --chip:#ece9e2;
+  --bg:#f6f4ef; --card:#fff; --ink:#1b1a17; --sub:#6d6960; --faint:#9a958a; --line:#e6e1d6; --chip:#eeeae1;
+  --jp:#d4460e; --jp-bg:#fdeee6; --kr:#1d4fd8; --kr-bg:#e8eefc;
+  --shadow:0 1px 2px rgba(40,30,10,.05),0 4px 14px rgba(40,30,10,.05);
 }
 @media (prefers-color-scheme: dark){
-  :root{ --bg:#141412; --card:#1e1d1b; --ink:#f1efea; --sub:#a29e95; --line:#34322e;
-    --jp:#fb923c; --kr:#7aa7ff; --up:#f97066; --down:#47cd89; --chip:#2a2926; }
+  :root{ --bg:#131311; --card:#1d1c1a; --ink:#f2efe9; --sub:#a8a399; --faint:#7d786e; --line:#33312c; --chip:#292825;
+    --jp:#ff9457; --jp-bg:#3a2317; --kr:#86adff; --kr-bg:#1a2742; --shadow:none; }
 }
 *{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);
-  font:15px/1.5 "Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif}
-header{padding:28px 16px 12px;max-width:1180px;margin:0 auto}
-h1{margin:0 0 4px;font-size:26px;letter-spacing:-.02em}
-.meta{color:var(--sub);font-size:13px}
-.bar{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
-.bar>div{max-width:1180px;margin:0 auto;padding:10px 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-button.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:6px 12px;
-  border-radius:999px;font:inherit;font-size:14px;cursor:pointer}
-button.chip[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-select,input[type=search]{font:inherit;font-size:14px;padding:6px 10px;border:1px solid var(--line);
-  border-radius:8px;background:var(--card);color:var(--ink)}
-input[type=search]{flex:1;min-width:140px}
-label.chk{font-size:14px;color:var(--sub);display:flex;gap:6px;align-items:center}
-main{max-width:1180px;margin:0 auto;padding:16px;display:grid;gap:12px;
-  grid-template-columns:repeat(auto-fill,minmax(330px,1fr))}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;
-  display:grid;grid-template-columns:96px 1fr;gap:12px;cursor:pointer;text-align:left;color:inherit;font:inherit}
-.card:hover{border-color:var(--sub)}
-.card img{width:96px;height:96px;object-fit:contain;background:var(--chip);border-radius:10px}
-.kuji{font-size:12px;color:var(--sub)}
-.label{font-weight:700;font-size:16px;margin:1px 0 6px}
-.prices{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.pr{border-left:3px solid var(--line);padding-left:8px}
-.pr.jp{border-color:var(--jp)} .pr.kr{border-color:var(--kr)}
-.pr b{display:block;font-size:16px;font-variant-numeric:tabular-nums}
-.pr small{color:var(--sub);font-size:12px}
-.gap{margin-top:8px;font-size:13px;font-weight:600}
-.gap.up{color:var(--up)} .gap.down{color:var(--down)} .gap.none{color:var(--sub);font-weight:400}
-.chg{margin-top:3px;font-size:12px;color:var(--sub)}
-.chg span{margin-left:6px;font-variant-numeric:tabular-nums}
-.assume{max-width:1180px;margin:0 auto;padding:0 16px 10px;font-size:14px}
-.assume summary{cursor:pointer;color:var(--sub)}
-.assume summary span{font-size:12px;margin-left:6px}
-.afields{display:flex;flex-wrap:wrap;gap:10px 18px;margin:10px 0 4px;align-items:end}
-.afields label{display:grid;gap:3px;font-size:12px;color:var(--sub)}
-.afields span{color:var(--ink);font-size:14px}
-.afields select{font:inherit;padding:5px 8px;border:1px solid var(--line);border-radius:8px;
-  background:var(--card);color:var(--ink)}
+  font:15px/1.5 "Pretendard Variable",Pretendard,"Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  font-feature-settings:"tnum"}
+.wrap{max-width:1200px;margin:0 auto;padding:0 20px}
+button,select,input{font:inherit;color:inherit}
+
+/* 머리말 */
+header{padding:36px 0 18px}
+.brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+h1{margin:0;font-size:30px;font-weight:800;letter-spacing:-.03em}
+.tagline{color:var(--sub);font-size:16px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;box-shadow:var(--shadow)}
+.stat small{display:block;color:var(--sub);font-size:12.5px}
+.stat b{display:block;font-size:24px;font-weight:750;letter-spacing:-.02em;line-height:1.25}
+.stat b span{font-size:14px;font-weight:500;color:var(--sub);margin-left:3px}
+.stat.jp b{color:var(--jp)} .stat.kr b{color:var(--kr)}
+.meta{color:var(--sub);font-size:12.5px;margin-top:12px}
+
+/* 직구 비용 가정 */
+.assume{margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:0 14px}
+.assume summary{cursor:pointer;padding:11px 0;font-weight:600;font-size:14px;list-style:none;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.assume summary::-webkit-details-marker{display:none}
+.assume summary::before{content:"▸";color:var(--faint)}
+.assume[open] summary::before{content:"▾"}
+.assume summary span{font-weight:400;font-size:12.5px;color:var(--sub)}
+.afields{display:flex;flex-wrap:wrap;gap:12px 18px;padding:4px 0 6px;align-items:end}
+.afields label{display:grid;gap:4px;font-size:12px;color:var(--sub)}
+.afields label>span{color:var(--ink);font-size:14px;display:flex;gap:6px;align-items:center}
+.afields input,.afields select{padding:6px 9px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.afields input{width:86px;text-align:right}
 .afields input:disabled{opacity:.4}
-.afields input{width:84px;font:inherit;padding:5px 8px;border:1px solid var(--line);border-radius:8px;
-  background:var(--card);color:var(--ink);text-align:right}
-.land{margin-top:6px;font-size:13px;color:var(--sub)}
-.land b{color:var(--ink);font-variant-numeric:tabular-nums}
-table.cost{width:auto;min-width:300px;margin:6px 0 16px}
-table.cost td{padding:4px 10px 4px 0}
-table.cost tr.sum td{font-weight:700;border-top:2px solid var(--line)}
-.empty{grid-column:1/-1;color:var(--sub);padding:40px 0;text-align:center}
-dialog{border:1px solid var(--line);border-radius:16px;background:var(--card);color:var(--ink);
-  width:min(980px,calc(100vw - 24px));max-height:calc(100vh - 24px);padding:0}
-dialog::backdrop{background:rgba(0,0,0,.5)}
-.dhead{display:flex;gap:14px;padding:16px;border-bottom:1px solid var(--line);align-items:center}
-.dhead img{width:84px;height:84px;object-fit:contain;background:var(--chip);border-radius:10px}
-.dhead h2{margin:0;font-size:19px}
-.dhead .x{margin-left:auto;align-self:flex-start;border:0;background:none;color:var(--sub);font-size:24px;cursor:pointer}
-.dbody{padding:16px;overflow:auto}
-.legend{display:flex;gap:14px;font-size:13px;color:var(--sub);margin:4px 0 8px;flex-wrap:wrap}
+.assume p{color:var(--sub);font-size:12.5px;margin:6px 0 14px;max-width:880px}
+
+/* 도구 막대 */
+.bar{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;gap:10px;align-items:center;padding-top:10px;padding-bottom:10px;flex-wrap:wrap}
+#chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:0 1 auto;max-width:100%}
+#chips::-webkit-scrollbar{display:none}
+.chip{border:1px solid var(--line);background:var(--card);padding:6px 13px;border-radius:999px;font-size:14px;
+  cursor:pointer;white-space:nowrap}
+.chip:hover{border-color:var(--faint)}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600}
+.tools{display:flex;gap:8px;align-items:center;flex:1 1 320px;min-width:0}
+select#sort,input[type=search]{font-size:14px;padding:7px 10px;border:1px solid var(--line);border-radius:9px;background:var(--card)}
+input[type=search]{flex:1;min-width:0}
+label.chk{font-size:13.5px;color:var(--sub);display:flex;gap:6px;align-items:center;white-space:nowrap;cursor:pointer}
+
+/* 목록 */
+main{padding-top:6px;padding-bottom:20px}
+.group{margin-top:26px}
+.ghead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 2px 10px}
+.ghead h2{margin:0;font-size:18px;font-weight:700;letter-spacing:-.01em}
+.ghead .work{font-size:12px;font-weight:600;color:var(--sub);background:var(--chip);border-radius:6px;padding:1px 7px}
+.ghead small{color:var(--sub);font-size:12.5px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(350px,1fr))}
+.group.flat{margin-top:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow);
+  display:grid;grid-template-columns:84px minmax(0,1fr);gap:14px;cursor:pointer;text-align:left;
+  transition:transform .12s ease,border-color .12s ease}
+.card:hover{border-color:var(--faint);transform:translateY(-1px)}
+.card:focus-visible,.chip:focus-visible,summary:focus-visible{outline:2px solid var(--kr);outline-offset:2px}
+.card img{width:84px;height:84px;object-fit:contain;background:var(--chip);border-radius:12px}
+.ctop{display:flex;gap:8px;align-items:flex-start;justify-content:space-between}
+.label{font-weight:700;font-size:16px;letter-spacing:-.01em;line-height:1.3}
+.kuji{font-size:12.5px;color:var(--sub)}
+.pill{flex:none;font-size:12.5px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.pill.jp{background:var(--jp-bg);color:var(--jp)} .pill.kr{background:var(--kr-bg);color:var(--kr)}
+.pill.none{background:var(--chip);color:var(--sub);font-weight:500}
+.bars{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:5px 9px;align-items:center;margin-top:10px;font-size:13px}
+.bars .k{color:var(--sub);white-space:nowrap}
+.bars .v{font-weight:650;text-align:right;white-space:nowrap}
+.bars .track{height:8px;border-radius:999px;background:var(--chip);overflow:hidden}
+.bars .fill{height:100%;border-radius:999px}
+.fill.jp{background:var(--jp)} .fill.kr{background:var(--kr)}
+.bars .lose{opacity:.38}
+.bars .dim{color:var(--faint);font-weight:500}
+.foot{margin-top:9px;font-size:12px;color:var(--sub);display:flex;gap:4px 12px;flex-wrap:wrap}
+.foot i{font-style:normal;color:var(--faint)}
+.empty{color:var(--sub);padding:60px 0;text-align:center}
+
+/* 상세 창 */
+dialog{border:1px solid var(--line);border-radius:18px;background:var(--card);color:var(--ink);
+  width:min(1000px,calc(100vw - 24px));max-height:calc(100dvh - 24px);padding:0}
+dialog::backdrop{background:rgba(10,8,4,.55)}
+.dhead{display:flex;gap:14px;padding:18px 18px 14px;border-bottom:1px solid var(--line);align-items:center;
+  position:sticky;top:0;background:var(--card);z-index:1}
+.dhead img{width:76px;height:76px;object-fit:contain;background:var(--chip);border-radius:12px;flex:none}
+.dhead h2{margin:1px 0;font-size:20px;letter-spacing:-.02em}
+.dhead .x{margin-left:auto;align-self:flex-start;border:0;background:var(--chip);width:34px;height:34px;border-radius:50%;
+  font-size:20px;line-height:1;cursor:pointer;flex:none}
+.dbody{padding:16px 18px 22px}
+.sum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.sum div{border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.sum small{display:block;color:var(--sub);font-size:12px}
+.sum b{display:block;font-size:20px;font-weight:750;letter-spacing:-.02em}
+.sum .jp b{color:var(--jp)} .sum .kr b{color:var(--kr)}
+.sum .verdict{grid-column:1/-1;border:0;padding:0}
+.legend{display:flex;gap:14px;font-size:12.5px;color:var(--sub);margin:4px 0 8px;flex-wrap:wrap}
 .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.chart{overflow-x:auto}
 svg text{fill:var(--sub);font-size:11px}
-.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
-@media (max-width:760px){.cols{grid-template-columns:1fr}}
-h3{font-size:14px;margin:0 0 6px}
+h3{font-size:14px;margin:18px 0 6px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .scroll{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:13px}
-td{padding:5px 6px;border-top:1px solid var(--line);vertical-align:top}
-td.n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+td{padding:6px 6px;border-top:1px solid var(--line);vertical-align:top}
+td.n{text-align:right;white-space:nowrap}
+td.n small{color:var(--sub)}
 td.d{white-space:nowrap;color:var(--sub)}
-a{color:inherit}
-.tag{font-size:11px;border-radius:4px;padding:0 5px;background:var(--chip);color:var(--sub);margin-left:4px;white-space:nowrap}
+a{color:inherit;text-underline-offset:2px;text-decoration-color:var(--faint)}
+.tag{font-size:11px;border-radius:5px;padding:0 5px;background:var(--chip);color:var(--sub);margin-left:4px;white-space:nowrap}
 tr.off td{opacity:.5}
-footer{max-width:1180px;margin:0 auto;padding:8px 16px 40px;color:var(--sub);font-size:12px}
+table.cost{width:auto;min-width:min(420px,100%)}
+table.cost td{padding:5px 14px 5px 0}
+table.cost td.n{padding-right:0}
+table.cost tr.total td{font-weight:700;border-top:2px solid var(--line)}
+footer{color:var(--sub);font-size:12.5px;padding-top:14px;padding-bottom:48px;border-top:1px solid var(--line);margin-top:26px}
+footer p{margin:0 0 6px;max-width:880px}
+
+@media (max-width:720px){
+  .wrap{padding:0 14px}
+  header{padding:24px 0 14px}
+  h1{font-size:24px} .tagline{font-size:14px}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stat b{font-size:21px}
+  .grid{grid-template-columns:1fr}
+  .card{grid-template-columns:68px minmax(0,1fr);gap:12px;padding:12px}
+  .card img{width:68px;height:68px}
+  .tools{flex-basis:100%;flex-wrap:wrap}
+  .tools select{flex:1}
+  .tools input[type=search]{flex:1 1 100%;order:3}
+  .chart svg{min-width:560px}
+
+  .cols{grid-template-columns:1fr}
+  dialog{width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;border-radius:0;border:0;margin:0}
+  .dhead img{width:60px;height:60px}
+  .sum b{font-size:17px}
+}
 </style>
 </head>
 <body>
-<header>
-  <h1>이치방쿠지 한일 시세</h1>
+<header class="wrap">
+  <div class="brand">
+    <h1>이치방쿠지 한일 시세</h1>
+    <span class="tagline">일본에서 직구할까, 한국에서 살까</span>
+  </div>
+  <div class="stats" id="stats"></div>
+  <details class="assume" id="assume">
+    <summary>직구 비용 가정 <span id="assumeSum"></span></summary>
+    <div class="afields">
+      <label>일본 내 배송비 <span><input type="number" id="a_dom" min="0" step="100"> 엔</span></label>
+      <label>구매대행 수수료 <span><select id="a_feeMode">
+        <option value="bidbuy">비드바이 요금표 (일반회원)</option>
+        <option value="pct">정률로 직접 입력</option></select></span></label>
+      <label>정률 수수료 <span><input type="number" id="a_fee" min="0" step="0.5"> %</span></label>
+      <label>국제 배송비 <span><input type="number" id="a_intl" min="0" step="50"> 엔</span></label>
+      <label>면세 한도 <span><input type="number" id="a_free" min="0" step="10"> 달러</span></label>
+      <label>한도 초과 시 관부가세 <span><input type="number" id="a_tax" min="0" step="0.1"> %</span></label>
+      <button class="chip" id="a_reset" type="button">기본값으로</button>
+    </div>
+    <p>피규어 1개를 일본 야후옥션에서 낙찰받아 구매대행으로 들여오는 경우의 추정입니다.
+      수수료와 국제 배송비 기본값은 비드바이코리아가 공개한 요금표(2026년 6월 기준, 일반회원, 항공특송 1kg 이하)를 따랐습니다.
+      일본 내 배송비와 관부가세율은 통상적인 수준으로 잡은 값이라 판매자와 품목 분류에 따라 다를 수 있습니다.
+      본인 조건에 맞게 고쳐 쓰세요. 값은 이 브라우저에만 저장됩니다.</p>
+  </details>
   <div class="meta" id="meta"></div>
 </header>
-<div class="bar"><div>
-  <span id="chips"></span>
-  <select id="sort" aria-label="정렬">
-    <option value="date">최신 쿠지순</option>
-    <option value="gapdesc">직구가 이득인 순</option>
-    <option value="gapasc">한국 구매가 이득인 순</option>
-    <option value="price">일본 시세 높은 순</option>
-  </select>
-  <label class="chk"><input type="checkbox" id="both" checked> 비교 가능한 것만</label>
-  <input type="search" id="q" placeholder="캐릭터·쿠지 이름 검색">
-</div>
-<details class="assume" id="assume">
-  <summary>직구 비용 가정 <span id="assumeSum"></span></summary>
-  <div class="afields">
-    <label>일본 내 배송비 <span><input type="number" id="a_dom" min="0" step="100"> 엔</span></label>
-    <label>구매대행 수수료 <span><select id="a_feeMode">
-      <option value="bidbuy">비드바이 요금표 (일반회원)</option>
-      <option value="pct">정률로 직접 입력</option></select></span></label>
-    <label>정률 수수료 <span><input type="number" id="a_fee" min="0" step="0.5"> %</span></label>
-    <label>국제 배송비 <span><input type="number" id="a_intl" min="0" step="50"> 엔</span></label>
-    <label>면세 한도 <span><input type="number" id="a_free" min="0" step="10"> 달러</span></label>
-    <label>한도 초과 시 관부가세 <span><input type="number" id="a_tax" min="0" step="0.1"> %</span></label>
-    <button class="chip" id="a_reset" type="button">기본값으로</button>
+
+<div class="bar"><div class="wrap">
+  <div id="chips"></div>
+  <div class="tools">
+    <select id="sort" aria-label="정렬">
+      <option value="date">최신 쿠지순</option>
+      <option value="gapdesc">직구가 이득인 순</option>
+      <option value="gapasc">한국 구매가 이득인 순</option>
+      <option value="price">일본 시세 높은 순</option>
+    </select>
+    <input type="search" id="q" placeholder="캐릭터·쿠지 이름 검색" aria-label="검색">
+    <label class="chk"><input type="checkbox" id="both" checked> 비교 가능한 것만</label>
   </div>
-  <p class="meta">피규어 1개를 일본 야후옥션에서 낙찰받아 구매대행으로 들여오는 경우의 추정입니다.
-    수수료와 국제 배송비 기본값은 비드바이코리아가 공개한 요금표(2026년 6월 기준, 일반회원, 항공특송 1kg 이하)를 따랐습니다.
-    일본 내 배송비와 관부가세율은 통상적인 수준으로 잡은 값이라 판매자와 품목 분류에 따라 다를 수 있습니다.
-    본인 조건에 맞게 고쳐 쓰세요. 값은 이 브라우저에만 저장됩니다.</p>
-</details>
-</div>
-<main id="grid"></main>
-<footer id="foot"></footer>
+</div></div>
+
+<main class="wrap" id="list"></main>
+<footer class="wrap">
+  <p>미개봉 기준 추정치입니다. 개봉·하자품, 묶음 판매, 동떨어진 가격은 계산에서 뺐습니다.</p>
+  <p>직구 예상가는 위 '직구 비용 가정'으로 계산한 추정이며 실제 비용과 다를 수 있습니다.</p>
+  <p>제목만으로 자동 분류하므로 잘못 분류된 매물이 섞일 수 있습니다. 상품 이미지는 이치방쿠지 공식 사이트의 것입니다.</p>
+</footer>
 <dialog id="dlg"></dialog>
+
 <script>
 const D = /*DATA*/null;
+const $ = id => document.getElementById(id);
 const won = n => "₩" + Math.round(n).toLocaleString("ko-KR");
 const yen = n => "¥" + Math.round(n).toLocaleString("ko-KR");
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let work = "all";
 
-document.getElementById("meta").textContent =
-  `일본 야후옥션 낙찰가 · 한국 번개장터 가격 · 최근 ${D.window}일 중간값 · 환율 ¥1 = ₩${D.fx} · ${D.generated} 수집`;
+$("meta").textContent =
+  `일본 야후옥션 낙찰가 · 한국 번개장터 가격 · 최근 ${D.window}일 중간값 · ${D.generated.slice(5, 16)} 갱신`;
 
 // ── 직구 비용 가정 (이용자가 고칠 수 있고 이 브라우저에만 저장) ──
 // dom: 일본 내 배송비(엔), feeMode: 수수료 방식, fee: 정률 수수료(%), intl: 국제 배송비(엔),
@@ -165,35 +252,116 @@ function landed(jpy) {
   return {price: jpy * D.fx, dom: A.dom * D.fx, fee, intl, tax, taxed,
           total: goods + fee + intl + tax};
 }
+const comparable = p => p.jp && p.kr && !p.hold;
 // 직구 예상가 대비 한국 가격 차이(%). 비교가 보류된 상품은 null
-const gapOf = p => p.jp && p.kr && !p.hold
+const gapOf = p => comparable(p)
   ? Math.round((p.kr.median - landed(p.jp.median).total) / landed(p.jp.median).total * 100) : null;
-document.getElementById("foot").textContent =
-  "미개봉 기준 추정치입니다. 개봉·하자품, 묶음 판매, 동떨어진 가격은 계산에서 뺐습니다. " +
-  "직구 예상가는 위 '직구 비용 가정'으로 계산한 추정이며 실제 비용과 다를 수 있습니다. " +
-  "제목만으로 자동 분류하므로 잘못 분류된 매물이 섞일 수 있습니다. 상품 이미지는 이치방쿠지 공식 사이트의 것입니다.";
 
-const chips = document.getElementById("chips");
-[["all","전체"], ...Object.entries(D.works)].forEach(([k, v]) => {
-  const b = document.createElement("button");
-  b.className = "chip"; b.textContent = v; b.setAttribute("aria-pressed", k === work);
-  b.onclick = () => { work = k; [...chips.children].forEach(c => c.setAttribute("aria-pressed", c === b)); render(); };
-  chips.append(b, " ");
-});
-
-function gapHtml(p) {
-  if (!p.jp || !p.kr) return `<div class="gap none">${p.jp || p.kr ? "한쪽 시세만 있음" : "매물 없음"}</div>`;
-  if (p.hold) return `<div class="gap none">비교 보류 · ${esc(p.hold)}</div>`;
+// 어느 쪽이 이득인지: {side: "jp"|"kr"|"none", text}
+function verdict(p) {
+  if (!p.jp || !p.kr) return {side: "none", text: p.jp || p.kr ? "한쪽 시세만 있음" : "매물 없음"};
+  if (p.hold) return {side: "none", text: "비교 보류 · " + p.hold};
   const diff = p.kr.median - landed(p.jp.median).total, g = gapOf(p);
-  if (g > 0) return `<div class="gap up">직구가 ${won(diff)} 이득 <small>(한국 +${g}%)</small></div>`;
-  if (g < 0) return `<div class="gap down">한국 구매가 ${won(-diff)} 이득 <small>(한국 ${g}%)</small></div>`;
-  return `<div class="gap none">직구와 한국 구매가 비슷함</div>`;
+  if (g > 0) return {side: "jp", text: "직구 " + won(diff) + " 이득"};
+  if (g < 0) return {side: "kr", text: "한국 구매 " + won(-diff) + " 이득"};
+  return {side: "none", text: "거의 같음"};
+}
+const pill = p => { const v = verdict(p); return `<span class="pill ${v.side}">${esc(v.text)}</span>`; };
+
+// 직구 예상가와 한국 가격을 막대로 비교
+function bars(p) {
+  const L = p.jp ? landed(p.jp.median).total : null, K = p.kr ? p.kr.median : null;
+  const max = Math.max(L || 0, K || 0) || 1, ok = comparable(p);
+  const row = (name, cls, v, lose) => v == null
+    ? `<span class="k">${name}</span><span class="track"></span><span class="v dim">–</span>`
+    : `<span class="k">${name}</span>
+       <span class="track"><span class="fill ${cls}${lose ? " lose" : ""}" style="display:block;width:${Math.max(4, v / max * 100)}%"></span></span>
+       <span class="v${lose ? " dim" : ""}">${won(v)}</span>`;
+  return `<div class="bars">
+    ${row("직구 예상", "jp", L, !ok || L > K)}
+    ${row("한국", "kr", K, !ok || K > L)}
+  </div>`;
 }
 
-function landHtml(p) {
-  if (!p.jp) return "";
-  const L = landed(p.jp.median);
-  return `<div class="land">직구 예상 <b>${won(L.total)}</b> · 배송·수수료${L.taxed ? "·세금" : ""} 포함</div>`;
+function chgText(p) {
+  const one = (name, v) => v == null ? "" : `${name} ${v > 0 ? "▲" : v < 0 ? "▼" : "–"}${Math.abs(v)}%`;
+  const s = [one("일본", p.chg.jp), one("한국", p.chg.kr)].filter(Boolean).join(" · ");
+  return s ? `<span><i>4주</i> ${s}</span>` : "";
+}
+
+function card(p, showKuji) {
+  const el = document.createElement("button");
+  el.className = "card";
+  el.innerHTML = `<img loading="lazy" src="${esc(p.image)}" alt="">
+    <div>
+      <div class="ctop">
+        <div><div class="label">${esc(p.label)}</div>
+          ${showKuji ? `<div class="kuji">${esc(D.works[p.work])} · ${esc(p.kuji)}</div>` : ""}</div>
+        ${pill(p)}
+      </div>
+      ${bars(p)}
+      <div class="foot">
+        ${p.jp ? `<span><i>일본 낙찰</i> ${yen(p.jp.median)} · ${p.jp.n}건</span>` : ""}
+        ${p.kr ? `<span><i>한국</i> ${p.kr.n}건</span>` : ""}
+        ${chgText(p)}
+      </div>
+    </div>`;
+  el.onclick = () => openDetail(p);
+  return el;
+}
+
+function renderStats() {
+  const all = D.prizes.filter(comparable), gs = all.map(gapOf);
+  const tile = (cls, label, value, unit) =>
+    `<div class="stat ${cls}"><small>${label}</small><b>${value}<span>${unit}</span></b></div>`;
+  $("stats").innerHTML =
+    tile("", "비교 가능한 피규어", all.length, "종") +
+    tile("jp", "직구가 이득", gs.filter(g => g > 0).length, "종") +
+    tile("kr", "한국 구매가 이득", gs.filter(g => g < 0).length, "종") +
+    tile("", "환율 ¥100", won(D.fx * 100), "");
+}
+
+function render() {
+  renderStats();
+  const q = $("q").value.trim().toLowerCase(), both = $("both").checked, sort = $("sort").value;
+  const list = D.prizes.filter(p => (work === "all" || p.work === work)
+    && (!both || comparable(p))
+    && (!q || (p.label + p.kuji + p.name_ja + p.kuji_ja + D.works[p.work]).toLowerCase().includes(q)));
+  const root = $("list");
+  root.innerHTML = "";
+  if (!list.length) { root.innerHTML = `<div class="empty">조건에 맞는 상품이 없습니다.</div>`; return; }
+
+  if (sort === "date") {
+    // 쿠지별로 묶어 보여 준다 (데이터는 이미 최신 쿠지순)
+    const groups = new Map();
+    for (const p of list) {
+      const key = p.work + "|" + p.kuji;
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(p);
+    }
+    for (const items of groups.values()) {
+      const p0 = items[0], sec = document.createElement("section");
+      sec.className = "group";
+      sec.innerHTML = `<div class="ghead"><span class="work">${esc(D.works[p0.work])}</span>
+        <h2>${esc(p0.kuji)}</h2><small>${esc(p0.date || "발매일 미정")} 발매 · ${items.length}종</small></div>
+        <div class="grid"></div>`;
+      const grid = sec.querySelector(".grid");
+      const ord = p => { const l = p.id.split("-").pop(); return l === "LAST" ? "~" : l; };  // 라스트원상은 맨 뒤
+      items.sort((a, b) => ord(a).localeCompare(ord(b)));
+      for (const p of items) grid.append(card(p, false));
+      root.append(sec);
+    }
+    return;
+  }
+  const g = gapOf;  // 비교가 보류된 상품은 정렬에서 뒤로
+  if (sort === "gapdesc") list.sort((a, b) => (g(b) ?? -1e9) - (g(a) ?? -1e9));
+  if (sort === "gapasc") list.sort((a, b) => (g(a) ?? 1e9) - (g(b) ?? 1e9));
+  if (sort === "price") list.sort((a, b) => (b.jp?.median ?? 0) - (a.jp?.median ?? 0));
+  const sec = document.createElement("section");
+  sec.className = "group flat";
+  sec.innerHTML = `<div class="grid"></div>`;
+  for (const p of list) sec.firstChild.append(card(p, true));
+  root.append(sec);
 }
 
 function costTable(p) {
@@ -206,53 +374,8 @@ function costTable(p) {
     ${row(A.feeMode === "pct" ? "구매대행 수수료 " + A.fee + "%" : "구매대행 수수료 (요금표 + 송금 300엔)", won(L.fee))}
     ${row("국제 배송비 (" + yen(A.intl) + ")", won(L.intl))}
     ${row(L.taxed ? "관부가세 " + A.tax + "% (면세 한도 $" + A.free + " 초과)" : "관부가세 (면세 한도 $" + A.free + " 이하)", won(L.tax))}
-    ${row("직구 예상 합계", won(L.total), "sum")}
-    ${p.kr ? row("한국 " + esc(p.kr.basis), won(p.kr.median)) : ""}
+    ${row("직구 예상 합계", won(L.total), "total")}
   </table>`;
-}
-
-function chgHtml(p) {
-  const one = (name, v) => v == null ? "" :
-    `<span>${name} ${v > 0 ? "▲" : v < 0 ? "▼" : "–"} ${Math.abs(v)}%</span>`;
-  const s = one("일본", p.chg.jp) + one("한국", p.chg.kr);
-  return s ? `<div class="chg">최근 4주 ${s}</div>` : "";
-}
-
-function render() {
-  const q = document.getElementById("q").value.trim().toLowerCase();
-  const both = document.getElementById("both").checked;
-  const sort = document.getElementById("sort").value;
-  let list = D.prizes.filter(p => (work === "all" || p.work === work)
-    && (!both || (p.jp && p.kr && !p.hold))
-    && (!q || (p.label + p.kuji + p.name_ja + p.kuji_ja + D.works[p.work]).toLowerCase().includes(q)));
-  const g = gapOf;  // 비교가 보류된 상품은 정렬에서 뒤로
-  if (sort === "gapdesc") list.sort((a, b) => (g(b) ?? -1e9) - (g(a) ?? -1e9));
-  if (sort === "gapasc") list.sort((a, b) => (g(a) ?? 1e9) - (g(b) ?? 1e9));
-  if (sort === "price") list.sort((a, b) => (b.jp?.median ?? 0) - (a.jp?.median ?? 0));
-  const grid = document.getElementById("grid");
-  grid.innerHTML = list.length ? "" : `<div class="empty">조건에 맞는 상품이 없습니다.</div>`;
-  for (const p of list) {
-    const el = document.createElement("button");
-    el.className = "card";
-    el.innerHTML = `<img loading="lazy" src="${esc(p.image)}" alt="">
-      <div>
-        <div class="kuji">${esc(D.works[p.work])} · ${esc(p.kuji)}</div>
-        <div class="label">${esc(p.label)}</div>
-        <div class="prices">
-          <div class="pr jp"><small>일본 낙찰가</small>
-            <b>${p.jp ? won(p.jp.median * D.fx) : "–"}</b>
-            <small>${p.jp ? yen(p.jp.median) + " · " + p.jp.n + "건" : "매물 없음"}</small></div>
-          <div class="pr kr"><small>한국 ${p.kr ? esc(p.kr.basis.split("(")[0]) : "가격"}</small>
-            <b>${p.kr ? won(p.kr.median) : "–"}</b>
-            <small>${p.kr ? p.kr.n + "건" : "매물 없음"}</small></div>
-        </div>
-        ${landHtml(p)}
-        ${gapHtml(p)}
-        ${chgHtml(p)}
-      </div>`;
-    el.onclick = () => openDetail(p);
-    grid.append(el);
-  }
 }
 
 // 주의 한가운데(목요일). 이번 주는 오늘을 넘지 않게 한다
@@ -269,7 +392,7 @@ function chart(rows, trend) {
   const x0 = Math.min(...xs), x1 = Math.max(...xs) || x0 + 1, y1 = Math.max(...ys) * 1.08;
   const X = t => L + (x1 === x0 ? .5 : (t - x0) / (x1 - x0)) * (W - L - R);
   const Y = v => T + (1 - v / y1) * (H - T - B);
-  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="가격 분포">`;
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="가격 분포와 주간 추이">`;
   for (let i = 0; i <= 4; i++) {
     const v = y1 * i / 4;
     s += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/>
@@ -304,22 +427,32 @@ function table(rows, jp) {
 }
 
 function openDetail(p) {
-  const dlg = document.getElementById("dlg");
+  const dlg = $("dlg");
   const jp = p.rows.filter(r => r.c === "jp"), kr = p.rows.filter(r => r.c === "kr");
+  const L = p.jp ? landed(p.jp.median) : null;
+  const hasChart = p.rows.filter(r => r.d && !r.o).length >= 2;
   dlg.innerHTML = `<div class="dhead"><img src="${esc(p.image)}" alt="">
       <div><div class="kuji">${esc(D.works[p.work])} · ${esc(p.kuji)} · ${esc(p.date || "발매일 미정")} 발매</div>
         <h2>${esc(p.label)}</h2>
-        <div class="kuji">${esc(p.kuji_ja)} / ${esc(p.name_ja)} ${p.size ? "· " + esc(p.size) : ""}</div>
-        ${gapHtml(p)}</div>
+        <div class="kuji">${esc(p.name_ja)}${p.size ? " · " + esc(p.size) : ""}</div></div>
       <button class="x" aria-label="닫기">×</button></div>
     <div class="dbody">
-      <div class="legend">
+      <div class="sum">
+        <div class="verdict">${pill(p)}</div>
+        <div><small>일본 낙찰가 · ${p.jp ? p.jp.n + "건" : "매물 없음"}</small>
+          <b>${p.jp ? yen(p.jp.median) : "–"}</b><small>${p.jp ? won(p.jp.median * D.fx) : ""}</small></div>
+        <div class="jp"><small>직구 예상</small><b>${L ? won(L.total) : "–"}</b>
+          <small>${L ? "배송·수수료" + (L.taxed ? "·세금" : "") + " 포함" : ""}</small></div>
+        <div class="kr"><small>한국 ${p.kr ? esc(p.kr.basis.split("(")[0]) + " · " + p.kr.n + "건" : "· 매물 없음"}</small>
+          <b>${p.kr ? won(p.kr.median) : "–"}</b><small>${p.kr && p.kr.basis.includes("(") ? "판매중 포함" : ""}</small></div>
+      </div>
+      ${hasChart ? `<div class="legend">
         <span><i class="dot" style="background:var(--jp)"></i>일본 낙찰 (원화 환산)</span>
         <span><i class="dot" style="background:var(--kr)"></i>한국 판매완료</span>
         <span><i class="dot" style="border:2px solid var(--kr)"></i>한국 판매중</span>
         <span>굵은 선 = 주간 중간값</span>
-      </div>
-      ${chart(p.rows, p.trend)}
+      </div>` : ""}
+      <div class="chart">${chart(p.rows, p.trend)}</div>
       ${costTable(p)}
       <div class="cols">
         <div><h3>일본 · 야후옥션 낙찰 ${jp.length}건</h3>${table(jp, true)}</div>
@@ -329,27 +462,39 @@ function openDetail(p) {
   dlg.querySelector(".x").onclick = () => dlg.close();
   dlg.onclick = e => { if (e.target === dlg) dlg.close(); };
   dlg.showModal();
+  dlg.scrollTop = 0;
 }
 
-["q", "both", "sort"].forEach(id => document.getElementById(id).addEventListener("input", render));
+// 작품 선택
+[["all", "전체"], ...Object.entries(D.works)].forEach(([k, v]) => {
+  const b = document.createElement("button");
+  b.className = "chip"; b.textContent = v; b.setAttribute("aria-pressed", k === work);
+  b.onclick = () => {
+    work = k;
+    [...$("chips").children].forEach(c => c.setAttribute("aria-pressed", c === b));
+    render();
+  };
+  $("chips").append(b);
+});
+["q", "both", "sort"].forEach(id => $(id).addEventListener("input", render));
 
 // 가정 입력란: 값이 바뀌면 저장하고 전체를 다시 계산
 function showAssume() {
-  for (const k in A_DEFAULT) document.getElementById("a_" + k).value = A[k];
-  document.getElementById("a_fee").disabled = A.feeMode !== "pct";
-  document.getElementById("assumeSum").textContent =
+  for (const k in A_DEFAULT) $("a_" + k).value = A[k];
+  $("a_fee").disabled = A.feeMode !== "pct";
+  $("assumeSum").textContent =
     `일본 내 ${yen(A.dom)} · 수수료 ${A.feeMode === "pct" ? A.fee + "%" : "비드바이 요금표"} · 국제배송 ${yen(A.intl)} · $${A.free} 초과 시 세금 ${A.tax}%`;
 }
 function saveAssume() {
   try { localStorage.setItem(A_KEY, JSON.stringify(A)); } catch (err) {}
   showAssume(); render();
 }
-for (const k in A_DEFAULT) document.getElementById("a_" + k).addEventListener("change", e => {
+for (const k in A_DEFAULT) $("a_" + k).addEventListener("change", e => {
   if (k === "feeMode") A[k] = e.target.value;
   else { const v = parseFloat(e.target.value); A[k] = v >= 0 ? v : A_DEFAULT[k]; }
   saveAssume();
 });
-document.getElementById("a_reset").onclick = () => { A = {...A_DEFAULT}; saveAssume(); };
+$("a_reset").onclick = () => { A = {...A_DEFAULT}; saveAssume(); };
 showAssume();
 render();
 
@@ -357,7 +502,7 @@ render();
 setInterval(async () => {
   try {
     const v = (await (await fetch("version.txt", {cache: "no-store"})).text()).trim();
-    if (v && v !== D.generated && !document.getElementById("dlg").open) location.reload();
+    if (v && v !== D.generated && !$("dlg").open) location.reload();
   } catch (e) { /* 파일로 직접 열었거나 서버가 꺼진 경우: 그냥 둔다 */ }
 }, 60000);
 </script>
