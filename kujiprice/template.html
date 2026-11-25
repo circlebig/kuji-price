@@ -100,6 +100,12 @@ main{padding-top:6px;padding-bottom:20px}
 .bars .dim{color:var(--faint);font-weight:500}
 .foot{margin-top:9px;font-size:12px;color:var(--sub);display:flex;gap:4px 12px;flex-wrap:wrap}
 .foot i{font-style:normal;color:var(--faint)}
+.us{margin-top:7px;padding-top:7px;border-top:1px dashed var(--line);font-size:12.5px;font-weight:600}
+.us i{font-style:normal;font-weight:500;color:var(--sub);margin-right:4px}
+.us span{font-weight:400;color:var(--sub);margin-left:4px}
+.usbox{border:1px dashed var(--line);border-radius:12px;padding:12px 14px;margin:0 0 16px;font-size:13.5px}
+.usbox b{font-size:17px}
+.usbox small{display:block;color:var(--sub);font-size:12px;margin-top:4px}
 .empty{color:var(--sub);padding:60px 0;text-align:center}
 
 /* 상세 창 */
@@ -208,6 +214,7 @@ footer p{margin:0 0 6px;max-width:880px}
 <footer class="wrap">
   <p>미개봉 기준 추정치입니다. 개봉·하자품, 묶음 판매, 동떨어진 가격은 계산에서 뺐습니다.</p>
   <p>직구 예상가는 위 '직구 비용 가정'으로 계산한 추정이며 실제 비용과 다를 수 있습니다.</p>
+  <p>미국 이치방쇼 가격은 같은 피규어의 해외 소매판을 미국 쇼핑몰에서 손으로 확인한 참고값입니다. 쿠지판과 포장이 다를 수 있습니다.</p>
   <p>제목만으로 자동 분류하므로 잘못 분류된 매물이 섞일 수 있습니다. 상품 이미지는 이치방쿠지 공식 사이트의 것입니다.</p>
 </footer>
 <dialog id="dlg"></dialog>
@@ -289,6 +296,14 @@ function chgText(p) {
   return s ? `<span><i>4주</i> ${s}</span>` : "";
 }
 
+// 미국 이치방쇼(해외 소매판) 가격. 배송비·세금은 포함하지 않은 참고값
+const usWon = usd => usd * D.fx / D.fx_usd;
+const US_STATUS = {in: "판매 중", pre: "예약 중", out: "품절"};
+function usLine(p) {
+  if (!p.us) return "";
+  return `<div class="us"><i>미국 이치방쇼</i> $${p.us.price} <span>약 ${won(usWon(p.us.price))} · ${US_STATUS[p.us.status] || ""}</span></div>`;
+}
+
 function card(p, showKuji) {
   const el = document.createElement("button");
   el.className = "card";
@@ -305,6 +320,7 @@ function card(p, showKuji) {
         ${p.kr ? `<span><i>한국</i> ${p.kr.n}건</span>` : ""}
         ${chgText(p)}
       </div>
+      ${usLine(p)}
     </div>`;
   el.onclick = () => openDetail(p);
   return el;
@@ -446,6 +462,13 @@ function openDetail(p) {
         <div class="kr"><small>한국 ${p.kr ? esc(p.kr.basis.split("(")[0]) + " · " + p.kr.n + "건" : "· 매물 없음"}</small>
           <b>${p.kr ? won(p.kr.median) : "–"}</b><small>${p.kr && p.kr.basis.includes("(") ? "판매중 포함" : ""}</small></div>
       </div>
+      ${p.us ? `<div class="usbox">
+        <i style="font-style:normal;color:var(--sub)">미국 이치방쇼 (해외 소매판) · ${US_STATUS[p.us.status] || ""}</i><br>
+        <b>$${p.us.price}</b> 약 ${won(usWon(p.us.price))}${p.us.msrp && p.us.msrp !== p.us.price ? ` · 정가 $${p.us.msrp}` : ""}
+        · <a href="${esc(p.us.url)}" target="_blank" rel="noopener noreferrer">${esc(D.us_meta.source)}에서 보기</a>
+        <small>${esc(p.us.title)}</small>
+        <small>${esc(D.us_meta.checked)}에 확인한 가격이며 자동 갱신되지 않습니다. 배송비와 관부가세는 포함하지 않았고, 한국 직배송 여부는 확인되지 않았습니다.</small>
+      </div>` : ""}
       ${hasChart ? `<div class="legend">
         <span><i class="dot" style="background:var(--jp)"></i>일본 낙찰 (원화 환산)</span>
         <span><i class="dot" style="background:var(--kr)"></i>한국 판매완료</span>

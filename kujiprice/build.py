@@ -8,7 +8,7 @@ import requests
 
 from .common import DATA, ROOT, WORKS, db
 from .match import Matcher, is_opened, is_target, kuji_entry
-from .names import CHARS
+from .names import CHARS, KUJI
 
 WINDOW_DAYS = 120     # 시세 계산에 쓰는 기간
 MAX_AGE_YEARS = 3     # 이보다 오래된 쿠지는 추적하지 않음(옛 상품과 헷갈리는 것 방지)
@@ -85,6 +85,26 @@ def ko_label(prize):
     return f"{letter} {' & '.join(names)}".strip()
 
 
+def load_ichibansho(prize_ids):
+    """미국 이치방쇼 가격 스냅샷(ichibansho_us.json)을 {상 id: 정보}로 읽는다.
+    쿠지 부제 키가 사전에 없거나 그 상이 추적 대상이 아니면 건너뛰고 알린다."""
+    path = ROOT / "kujiprice" / "ichibansho_us.json"
+    if not path.exists():
+        return {}, None
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    group_of = {needle: i for i, (needle, _) in enumerate(KUJI)}
+    out = {}
+    for it in raw["items"]:
+        pid = f"{group_of.get(it['kuji'])}-{it['letter']}"
+        if pid not in prize_ids:
+            print("  ! 이치방쇼 연결 실패:", it["kuji"], it["letter"], it["title"][:50])
+            continue
+        out[pid] = dict(price=it["price"], msrp=it["msrp"], status=it["status"], title=it["title"],
+                        url="https://www.deepdiscount.com/search?q=" + it["jan"])
+    meta = dict(source=raw["source"], checked=raw["checked"])
+    return out, meta
+
+
 def load_prizes(con):
     kujis = {r["slug"]: dict(r) for r in con.execute("SELECT * FROM kuji")}
     groups, all_cfgs = {}, {}
@@ -122,6 +142,7 @@ def run():
     con = db()
     prizes, all_cfgs = load_prizes(con)
     matcher = Matcher(prizes, all_cfgs)
+    us_prices, us_meta = load_ichibansho({p["id"] for p in prizes})
     rate, usd, rate_time = fx_rate()
     since = (datetime.now(timezone.utc) - timedelta(days=WINDOW_DAYS)).isoformat()
 
@@ -163,13 +184,13 @@ def run():
                      jp and jp["median"], jp and jp["n"], kr and kr["median"], kr and kr["n"], rate))
         out.append(dict(id=p["id"], work=p["work"], kuji=p["kuji_ko"], kuji_ja=p["kuji_ja"],
                         date=p["release_date"], label=ko_label(p), name_ja=p["name"],
-                        image=p["image"], size=p["size"], jp=jp, kr=kr, gap=gap, hold=hold,
+                        image=p["image"], size=p["size"], jp=jp, kr=kr, gap=gap, hold=hold, us=us_prices.get(p["id"]),
                         trend=dict(jp=jp_trend, kr=kr_trend), chg=dict(jp=jp_chg, kr=kr_chg),
                         rows=[r for c in ("jp", "kr")
                               for r in [x for x in rows if x["c"] == c][:60]]))
     out.sort(key=lambda x: (x["date"] or "", x["id"]), reverse=True)
 
-    data = dict(generated=datetime.now().strftime("%Y-%m-%d %H:%M:%S"), fx=round(rate, 3), fx_usd=round(usd, 6),
+    data = dict(generated=datetime.now().strftime("%Y-%m-%d %H:%M:%S"), fx=round(rate, 3), fx_usd=round(usd, 6), us_meta=us_meta,
                 fx_time=rate_time, window=WINDOW_DAYS,
                 works={k: v["ko"] for k, v in WORKS.items()}, prizes=out)
     (DATA / "data.json").write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
