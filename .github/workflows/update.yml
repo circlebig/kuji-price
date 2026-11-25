@@ -30,9 +30,6 @@ jobs:
   update:
     runs-on: ubuntu-latest
     timeout-minutes: 50
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -86,5 +83,15 @@ jobs:
       - uses: actions/upload-pages-artifact@v5
         with:
           path: site
+
+  # 올린 결과물이 조회되기 전에 배포가 시작되어 실패하는 일이 있어 별도 작업으로 나눈다
+  deploy:
+    needs: update
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
       - id: deploy
         uses: actions/deploy-pages@v5
