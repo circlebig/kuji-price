@@ -34,8 +34,8 @@ jobs:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
       - run: pip install -r requirements.txt
@@ -43,7 +43,7 @@ jobs:
       # 수집 DB는 저장소에 넣지 않고 Actions 캐시로 다음 실행에 넘긴다
       - name: 이전 수집 DB 복원
         id: db
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: data/kuji.sqlite
           key: kuji-db-${{ github.run_id }}
@@ -78,13 +78,13 @@ jobs:
 
       - name: 수집 DB 저장
         if: always() && hashFiles('data/kuji.sqlite') != ''
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: data/kuji.sqlite
           key: kuji-db-${{ github.run_id }}
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: site
       - id: deploy
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
