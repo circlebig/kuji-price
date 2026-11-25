@@ -16,7 +16,8 @@ FX_FALLBACK = 9.0     # 환율 조회 실패 시 1엔당 원화
 FX_USD_FALLBACK = 0.0065  # 환율 조회 실패 시 1엔당 달러
 # 한일 비교를 화면에 내보내는 최소 조건
 MIN_JP, MIN_KR = 5, 3  # 나라별 최소 매물 수
-MAX_RATIO = 2.5        # 한국가/일본가(환산)가 이 배수를 넘거나 그 역수보다 작으면 보류
+MAX_RATIO = 2.5        # 한국가/일본 직구가가 이 배수를 넘거나 그 역수보다 작으면 보류
+FIXED_COST_KRW = 20000 # 직구 때 붙는 최소 부대비용(배송·수수료)의 어림값. 싼 상품의 비율 왜곡을 막는다
 
 
 def fx_rate():
@@ -34,7 +35,9 @@ def hold_reason(jp, kr, rate):
         return None
     if jp["n"] < MIN_JP or kr["n"] < MIN_KR:
         return "표본 부족"
-    ratio = kr["median"] / (jp["median"] * rate)
+    # 낙찰가 1천 엔대 상품은 한국에서 배송비 때문에 몇 배로 팔리는 게 정상이라,
+    # 낙찰가 그대로가 아니라 부대비용을 더한 값과 비교한다
+    ratio = kr["median"] / (jp["median"] * rate + FIXED_COST_KRW)
     if not 1 / MAX_RATIO <= ratio <= MAX_RATIO:
         # 같은 상품이 이 정도로 벌어지는 일은 드물다. 대개 다른 상품이 섞인 것.
         return "가격 차이가 비정상적"

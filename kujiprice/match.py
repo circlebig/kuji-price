@@ -2,7 +2,7 @@
 import re
 import unicodedata
 
-from .names import CHARS, KUJI
+from .names import CHARS, KUJI, VARIANTS
 
 _STRIP = re.compile(r"[\s~〜・･『』「」【】()\[\]!\-‐—–_/:,、。.★☆◆■◎●♪*#|]+")
 
@@ -67,7 +67,8 @@ def prize_chars(prize_name):
 def is_target(prize):
     """시세를 추적할 피규어 상인지 (미니 피규어·인형 제외)."""
     n = prize["name"]
-    return bool(prize["is_figure"]) and "ちょこのっこ" not in n and "ぬいぐるみ" not in n
+    skip = ("ちょこのっこ", "ぬいぐるみ", "マグネット", "ミニフィギュア")
+    return bool(prize["is_figure"]) and not any(w in n for w in skip)
 
 
 class Matcher:
@@ -99,8 +100,11 @@ class Matcher:
         day = (dated or "")[:10]
         hit = []
         for p in cands:
-            if p["release_date"] and day and day < p["release_date"]:
-                continue  # 발매 전 날짜의 매물은 다른(옛) 쿠지
+            if not p["release_date"] or (day and day < p["release_date"]):
+                continue  # 발매일 미정이거나 발매 전 날짜의 매물은 다른(옛) 쿠지
+            if any(v not in p["chars"] and any(norm(a) in t for a in CHARS[v][idx])
+                   for v in VARIANTS):
+                continue  # 제목이 이 상에 없는 다른 형태(초사이어인4 등)를 가리킴
             found = sum(any(norm(a) in t for a in CHARS[c][idx]) for c in p["chars"])
             if p["chars"] and found < min(2, len(p["chars"])):
                 continue  # 2명 이상인 상은 2명 이상 언급돼야 함
