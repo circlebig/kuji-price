@@ -2,7 +2,9 @@ name: 시세 갱신 및 배포
 
 on:
   schedule:
-    - cron: "17 */3 * * *"   # 3시간마다 (UTC 기준 매 3시간 17분)
+    # 매시간 23분. GitHub 예약 실행은 늦어지거나 건너뛰는 일이 잦아서 자주 걸어 둔다.
+    # 빠른 수집은 2분 안팎이고, 전체 수집은 하루 한 번만 한다(run.py auto 가 판단).
+    - cron: "23 * * * *"
   workflow_dispatch:
     inputs:
       full:
@@ -46,19 +48,9 @@ jobs:
           key: kuji-db-${{ github.run_id }}
           restore-keys: kuji-db-
 
-      - name: 수집 방식 결정
-        id: mode
-        run: |
-          # DB가 없거나, 수동으로 전체 수집을 골랐거나, 한국 시간 새벽 3~5시대 실행이면 전체 수집
-          hour=$(date +%-H)
-          if [ ! -f data/kuji.sqlite ] || [ "${{ inputs.full }}" = "true" ] || { [ "${{ github.event_name }}" = "schedule" ] && [ "$hour" -ge 3 ] && [ "$hour" -lt 6 ]; }; then
-            echo "cmd=all" >> "$GITHUB_OUTPUT"
-          else
-            echo "cmd=quick" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: 수집 및 집계
-        run: python run.py ${{ steps.mode.outputs.cmd }}
+        # 수동 실행에서 전체 수집을 골랐으면 all, 아니면 오늘 전체 수집을 했는지 보고 스스로 정한다
+        run: python run.py ${{ inputs.full && 'all' || 'auto' }}
 
       - name: 결과 점검
         run: |

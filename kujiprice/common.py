@@ -76,6 +76,7 @@ CREATE TABLE IF NOT EXISTS listing(
   url TEXT, image TEXT,
   first_seen TEXT, last_seen TEXT,
   PRIMARY KEY(source, item_id));
+CREATE TABLE IF NOT EXISTS meta(key TEXT PRIMARY KEY, value TEXT);  -- 마지막 전체 수집일 등
 CREATE TABLE IF NOT EXISTS snapshot(   -- 하루 한 줄씩 쌓이는 시세 기록
   day TEXT, prize_id TEXT, jp_median INTEGER, jp_n INTEGER,
   kr_median INTEGER, kr_n INTEGER, fx REAL,

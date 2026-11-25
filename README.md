@@ -29,8 +29,8 @@ python -m http.server 8765 --directory site
 
 ## 배포
 
-`main`에 올라간 코드로 GitHub Actions(`.github/workflows/update.yml`)가 3시간마다 새 매물을 수집하고
-GitHub Pages에 페이지를 올립니다. 하루 한 번(한국 시간 새벽)은 카탈로그와 전체 매물을 다시 수집합니다.
+`main`에 올라간 코드로 GitHub Actions(`.github/workflows/update.yml`)가 매시간 새 매물을 수집하고
+GitHub Pages에 페이지를 올립니다. 하루 한 번(한국 시간 새벽 3시 이후 첫 실행)은 카탈로그와 전체 매물을 다시 수집합니다(`python run.py auto`가 판단). GitHub 예약 실행은 늦어지거나 건너뛰는 일이 있어 주기를 짧게 잡았습니다.
 
 - 사이트: https://circlebig.github.io/kuji-price/
 - 수동 실행: 저장소의 Actions 탭에서 "시세 갱신 및 배포"를 실행
