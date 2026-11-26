@@ -420,7 +420,10 @@ function costTable(p) {
 const mid = w => Math.min(+new Date(w) + 3 * 864e5, Date.now());
 
 function chart(rows, trend) {
-  const pts = rows.filter(r => r.d && !r.o);
+  let pts = rows.filter(r => r.d && !r.o);
+  // "9,999,999원" 같은 자리 채우기 가격이 섞이면 축이 망가지므로, 중간값의 4배를 넘는 점은 그리지 않는다
+  const sorted = pts.map(r => r.krw).sort((a, b) => a - b), mid0 = sorted[Math.floor(sorted.length / 2)] || 0;
+  pts = pts.filter(r => r.krw <= mid0 * 4);
   const lines = [["jp", trend.jp], ["kr", trend.kr]];
   if (pts.length < 2) return "";
   const W = 920, H = 240, L = 62, R = 12, T = 10, B = 26;
