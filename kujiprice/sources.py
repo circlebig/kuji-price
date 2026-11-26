@@ -8,6 +8,9 @@ from .common import WORKS, db, get
 YAHOO_PAGES = 5      # 검색어당 최대 페이지(100건/페이지)
 BUNJANG_PAGES = 40   # 검색어당 최대 페이지(60건/페이지)
 BUNJANG_QUICK_PAGES = 5  # 빠른 수집 때: 최근 수정된 매물 300건만
+# 상 표기 검색어("주술회전 A상" 등)는 검색어 수가 많아 쪽수를 적게 본다
+BUNJANG_LETTER_PAGES = 10
+BUNJANG_LETTER_QUICK_PAGES = 2
 
 UPSERT = """
 INSERT INTO listing(source,item_id,work,title,price,currency,status,dated,url,image,first_seen,last_seen)
@@ -73,10 +76,18 @@ def bunjang(con, work, quick=False):
     """판매중 + 판매완료. 가격은 판매자가 올린 가격."""
     w = WORKS[work]
     n = 0
-    queries = [f"{brand} {w['ko_keys'][0]}" for brand in ("제일복권", "이치방쿠지")]
-    for q in queries:
+    name = w["ko_keys"][0]
+    brand_pages = BUNJANG_QUICK_PAGES if quick else BUNJANG_PAGES
+    letter_pages = BUNJANG_LETTER_QUICK_PAGES if quick else BUNJANG_LETTER_PAGES
+    queries = [(f"{brand} {name}", brand_pages) for brand in ("제일복권", "이치방쿠지")]
+    # 제목에 "제일복권"·"이치방쿠지"를 안 쓰고 "주술회전 고죠 A상"처럼만 올린 매물을 잡는다.
+    # 번개장터 검색은 상 글자별로 결과가 갈려서, 피규어가 있는 상마다 따로 검색한다.
+    for letter in figure_letters(con, work):
+        word = "라스트원" if letter == "LAST" else f"{letter}상"
+        queries.append((f"{name} {word}", letter_pages))
+    for q, pages in queries:
         cursor, seen_cursors = None, set()
-        for _ in range(BUNJANG_QUICK_PAGES if quick else BUNJANG_PAGES):
+        for _ in range(pages):
             params = {"q": q, "status": "SOLD_OUT", "sort": "latest", "size": 60,
                       "policyKey": "pw.product.keyword"}
             if cursor:
