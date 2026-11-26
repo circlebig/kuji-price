@@ -128,7 +128,8 @@ class Matcher:
             # 부제가 없는 매물은 최근 발매된 쿠지로만 인정한다.
             # (목록에 없는 옛 쿠지의 같은 상·같은 캐릭터와 섞이는 것을 막기 위함)
             pool = [p for p in hit if p["chars"] and p["release_date"] and day
-                    and _days_between(p["release_date"], day) <= self.FRESH_DAYS
+                    and (p["cfg"].get("any_age")
+                         or _days_between(p["release_date"], day) <= self.FRESH_DAYS)
                     and not any(norm(x) in t for x in p["cfg"].get("not", []))]
             if not pool:
                 return None, "쿠지 특정 불가"

@@ -30,6 +30,9 @@ WORKS = {
             "ko_keys": ["귀멸의 칼날", "귀멸의칼날", "귀멸", "귀칼"]},
     "nrt": {"ko": "나루토", "ja": "NARUTO", "kuji_id": 6, "ja_keys": ["NARUTO", "ナルト"],
             "ko_keys": ["나루토"]},
+    "skd": {"ko": "사카모토 데이즈", "ja": "SAKAMOTO DAYS", "kuji_id": 1051,
+            "ja_keys": ["SAKAMOTO DAYS", "サカモトデイズ"],
+            "ko_keys": ["사카모토 데이즈", "사카모토데이즈", "사카데이"]},
 }
 
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
