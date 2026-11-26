@@ -76,6 +76,8 @@ main{padding-top:6px;padding-bottom:20px}
 .ghead h2{margin:0;font-size:18px;font-weight:700;letter-spacing:-.01em}
 .ghead .work{font-size:12px;font-weight:600;color:var(--sub);background:var(--chip);border-radius:6px;padding:1px 7px}
 .ghead small{color:var(--sub);font-size:12.5px}
+.draw{flex-basis:100%;font-size:12.5px;color:var(--sub)}
+.draw b{color:var(--ink)} .draw b.good{color:var(--kr)}
 .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(350px,1fr))}
 .group.flat{margin-top:16px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow);
@@ -224,6 +226,7 @@ footer p{margin:0 0 6px;max-width:880px}
   <p>미개봉 기준 추정치입니다. 개봉·하자품, 묶음 판매, 동떨어진 가격은 계산에서 뺐습니다.</p>
   <p>직구 예상가는 위 '직구 비용 가정'으로 계산한 추정이며 실제 비용과 다를 수 있습니다.</p>
   <p>미국 이치방쇼 가격은 같은 피규어의 해외 소매판을 미국 쇼핑몰에서 손으로 확인한 참고값입니다. 쿠지판과 포장이 다를 수 있습니다.</p>
+  <p>뽑기 기대값은 팬 블로그가 정리한 상별 개수를 바탕으로 한 참고값이며, 피규어 상만 계산합니다.</p>
   <p>제목만으로 자동 분류하므로 잘못 분류된 매물이 섞일 수 있습니다. 상품 이미지는 이치방쿠지 공식 사이트의 것입니다.</p>
 </footer>
 <dialog id="dlg"></dialog>
@@ -340,12 +343,23 @@ function card(p, showKuji) {
         ${p.kr ? `<span><i>한국</i> ${p.kr.n}건</span>` : ""}
         ${chgText(p)}
         ${premiumText(p)}
+        ${lotText(p)}
       </div>
       ${usLine(p)}
     </div>`;
   el.onclick = () => openDetail(p);
   return el;
 }
+
+// 한 번 뽑을 때: 1회 가격, 피규어가 나올 확률, 기대값(피규어 상의 일본 낙찰가만 계산)
+function drawHtml(p) {
+  const L = p.lot;
+  if (!L || !p.draw) return "";
+  const pct = Math.round(L.fig / L.total * 100), ratio = Math.round(L.ev / p.draw * 100);
+  return `<span class="draw" title="한 세트 ${L.total}개 중 피규어 상 ${L.fig}개. 기대값은 피규어 상의 일본 낙찰가만 더한 값이며 하위상은 0엔으로 쳤습니다.${L.unpriced ? " 시세가 없는 피규어 상 " + L.unpriced + "종도 0엔으로 쳤습니다." : ""}">
+    1회 ${yen(p.draw)} · 피규어 확률 ${pct}% (${L.fig}/${L.total}) · 기대값 <b class="${ratio >= 100 ? "good" : ""}">${yen(L.ev)}</b> (정가의 ${ratio}%)</span>`;
+}
+const lotText = p => p.lot && p.lot.n ? `<span><i>한 세트</i> ${p.lot.total}개 중 ${p.lot.n}개</span>` : "";
 
 function renderStats() {
   const all = D.prizes.filter(comparable), gs = all.map(gapOf);
@@ -380,7 +394,8 @@ function render() {
       const p0 = items[0], sec = document.createElement("section");
       sec.className = "group";
       sec.innerHTML = `<div class="ghead"><span class="work">${esc(D.works[p0.work])}</span>
-        <h2>${esc(p0.kuji)}</h2><small>${esc(p0.date || "발매일 미정")} 발매 · ${items.length}종</small></div>
+        <h2>${esc(p0.kuji)}</h2><small>${esc(p0.date || "발매일 미정")} 발매 · ${items.length}종</small>
+        ${drawHtml(p0)}</div>
         <div class="grid"></div>`;
       const grid = sec.querySelector(".grid");
       const ord = p => { const l = p.id.split("-").pop(); return l === "LAST" ? "~" : l; };  // 라스트원상은 맨 뒤
@@ -497,6 +512,13 @@ function openDetail(p) {
           <a href="${esc(p.jp_search)}" target="_blank" rel="noopener noreferrer">야후옥션 진행 중 경매 검색</a>
           <small>진행 중인 경매는 수집하지 않아 가격을 보여 드리지 못합니다.${p.premium != null ? ` 정가(1회 ${yen(p.draw)}) 대비 낙찰가 ${p.premium > 0 ? "+" : ""}${p.premium.toLocaleString("ko-KR")}%.` : ""}</small></div>
       </div>
+      ${p.lot && p.draw ? `<div class="usbox" style="border-style:solid">
+        <i style="font-style:normal;color:var(--sub)">이 쿠지를 한 번 뽑으면 (1회 ${yen(p.draw)})</i><br>
+        ${p.lot.n ? `이 상이 나올 확률 <b>${(p.lot.n / p.lot.total * 100).toFixed(1)}%</b> (${p.lot.total}개 중 ${p.lot.n}개) · ` : ""}
+        피규어 상 확률 <b>${Math.round(p.lot.fig / p.lot.total * 100)}%</b> · 기대값 <b>${yen(p.lot.ev)}</b>
+        <small>기대값은 피규어 상의 일본 낙찰가에 개수를 곱해 더한 뒤 전체 개수로 나눈 값입니다. 타월·아크릴 같은 하위상은 0엔으로 쳐서 실제보다 낮게 나옵니다.${p.lot.unpriced ? " 시세가 없는 피규어 상 " + p.lot.unpriced + "종도 0엔으로 쳤습니다." : ""} 라스트원상은 마지막 한 장을 뽑은 사람이 받으므로 확률에 넣지 않았습니다.</small>
+        <small>상별 개수 출처: ${esc(D.lots_meta.source)} (${esc(D.lots_meta.checked)} 확인, 참고용)</small>
+      </div>` : ""}
       ${p.us ? `<div class="usbox">
         <i style="font-style:normal;color:var(--sub)">미국 이치방쇼 (해외 소매판) · ${US_STATUS[p.us.status] || ""}</i><br>
         <b>$${p.us.price}</b> 약 ${won(usWon(p.us.price))}${p.us.msrp && p.us.msrp !== p.us.price ? ` · 정가 $${p.us.msrp}` : ""}

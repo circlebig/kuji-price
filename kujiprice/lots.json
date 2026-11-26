@@ -1,0 +1,700 @@
+{
+ "source": "遊戯王&ドラゴンボール通販予約情報局 (meli-melo.blog.jp)",
+ "checked": "2026-11-26",
+ "note": "쿠지 한 세트(로트)에 상별로 몇 개 들어 있는지. 블로그 글에서 읽어 둔 스냅샷이며 출처도 '참고용'이라고 밝히고 있다. 키는 공식 사이트의 쿠지 주소명(slug). 라스트원상은 마지막 한 장을 뽑은 사람이 받으므로 개수에 없다.",
+ "kujis": {
+  "chainsawman": {
+   "name": "一番くじ 劇場版『チェンソーマン レゼ篇』",
+   "total": 70,
+   "counts": {
+    "A": 1,
+    "B": 2,
+    "C": 1,
+    "D": 1,
+    "E": 1,
+    "F": 1,
+    "G": 21,
+    "H": 21,
+    "I": 21
+   },
+   "source": "https://meli-melo.blog.jp/archives/1082739749.html"
+  },
+  "chainsawman3": {
+   "name": "一番くじ 劇場版『チェンソーマン レゼ篇』第2弾",
+   "total": 70,
+   "counts": {
+    "A": 1,
+    "B": 2,
+    "C": 2,
+    "D": 1,
+    "E": 1,
+    "F": 12,
+    "G": 16,
+    "H": 16,
+    "I": 19
+   },
+   "source": "https://meli-melo.blog.jp/archives/1083508794.html"
+  },
+  "db_gt": {
+   "name": "一番くじ ドラゴンボールGT",
+   "total": 80,
+   "counts": {
+    "A": 2,
+    "B": 2,
+    "C": 1,
+    "D": 1,
+    "E": 1,
+    "F": 1,
+    "G": 30,
+    "H": 20,
+    "I": 22
+   },
+   "source": "https://meli-melo.blog.jp/archives/1083443042.html"
+  },
+  "db_sb": {
+   "name": "一番くじ ドラゴンボール スペクタクルバトル",
+   "total": 80,
+   "counts": {
+    "A": 1,
+    "B": 1,
+    "C": 2,
+    "D": 2,
+    "E": 1,
+    "F": 17,
+    "G": 16,
+    "H": 20,
+    "I": 20
+   },
+   "source": "https://meli-melo.blog.jp/archives/1083387321.html"
+  },
+  "db_z8": {
+   "name": "一番くじ ドラゴンボール SPIRIT OF THE SAIYAN",
+   "total": 80,
+   "counts": {
+    "A": 2,
+    "B": 2,
+    "C": 2,
+    "D": 1,
+    "E": 1,
+    "F": 3,
+    "G": 14,
+    "H": 18,
+    "I": 19,
+    "J": 18
+   },
+   "source": "https://meli-melo.blog.jp/archives/1083533760.html"
+  },
+  "jujutsu11": {
+   "name": "一番くじ 呪術廻戦 渋谷事変 ～弐～",
+   "total": 66,
+   "counts": {
+    "A": 1,
+    "B": 1,
+    "C": 1,
+    "D": 1,
+    "E": 1,
+    "F": 1,
+    "G": 2,
+    "H": 1,
+    "I": 2,
+    "J": 2,
+    "K": 1,
+    "L": 12,
+    "M": 20,
+    "N": 20
+   },
+   "source": "https://meli-melo.blog.jp/archives/1080981045.html"
+  },
+  "jujutsu12": {
+   "name": "一番くじ 呪術廻戦 懐玉・玉折 ～参～",
+   "total": 70,
+   "counts": {
+    "A": 1,
+    "B": 1,
+    "C": 1,
+    "D": 2,
+    "E": 2,
+    "F": 22,
+    "G": 18,
+    "H": 23
+   },
+   "source": "https://meli-melo.blog.jp/archives/1081416292.html"
+  },
+  "jujutsu13": {
+   "name": "一番くじ 呪術廻戦 渋谷事変 ～参～",
+   "total": 70,
+   "counts": {
+    "A": 3,
+    "B": 2,
+    "C": 2,
+    "D": 20,
+    "E": 22,
+    "F": 21
+   },
+   "source": "https://meli-melo.blog.jp/archives/1081799653.html"
+  },
+  "jujutsu14": {
+   "name": "一番くじ 呪術廻戦 渋谷事変 ～肆～",
+   "total": 70,
+   "counts": {
+    "A": 1,
+    "B": 2,
+    "C": 2,
+    "D": 1,
+    "E": 1,
+    "F": 16,
+    "G": 24,
+    "H": 23
+   },
+   "source": "https://meli-melo.blog.jp/archives/1082647245.html"
+  },
+  "jujutsu16": {
+   "name": "一番くじ 劇場版 呪術廻戦 ０ ー1224ー",
+   "total": 70,
+   "counts": {
+    "A": 2,
+    "B": 2,
+    "C": 2,
+    "D": 2,
+    "E": 20,
+    "F": 21,
+    "G": 21
+   },
+   "source": "https://meli-melo.blog.jp/archives/1083065562.html"
+  },
+  "jujutsu17": {
+   "name": "一番くじ 呪術廻戦 死滅回游 ～壱～",
+   "total": 70,
+   "counts": {
+    "A": 1,
+    "B": 1,
+    "C": 1,
+    "D": 1,
+    "E": 1,
+    "F": 1,
+    "G": 1,
+    "H": 1,
+    "I": 1,
+    "J": 1,
+    "K": 6,
+    "L": 18,
+    "N": 18,
+    "M": 18
+   },
+   "source": "https://meli-melo.blog.jp/archives/1083133027.html"
+  },
+  "jujutsu18": {
+   "name": "一番くじ 呪術廻戦 死滅回游 ～弐～",
+   "total": 70,
+   "counts": {
+    "A": 1,
+    "B": 1,
+    "C": 1,
+    "D": 1,
+    "E": 1,
+    "F": 1,
+    "G": 1,
+    "H": 1,
+    "I": 1,
+    "J": 1,
+    "K": 20,
+    "L": 20,
+    "M": 20
+   },
+   "source": "https://meli-melo.blog.jp/archives/1083186588.html"
+  },
+  "jujutsu19": {
+   "name": "一番くじ アニメ『呪術廻戦』5周年FINAL！",
+   "total": 70,
+   "counts": {
+    "A": 1,
+    "B": 1,
+    "C": 1,
+    "D": 2,
+    "E": 3,
+    "F": 2,
+    "G": 2,
+    "H": 28,
+    "I": 13,
+    "J": 17
+   },
+   "source": "https://meli-melo.blog.jp/archives/1083496385.html"
+  },
+  "kimetsu23": {
+   "name": "一番くじ 鬼滅の刃 ～ふめつのきずな 弐～",
+   "total": 70,
+   "counts": {
+    "A": 2,
+    "B": 2,
+    "C": 1,
+    "D": 2,
+    "E": 20,
+    "F": 20,
+    "G": 23
+   },
+   "source": "https://meli-melo.blog.jp/archives/1081525205.html"
+  },
+  "kimetsu24": {
+   "name": "一番くじ 鬼滅の刃 ～繋いだ軌跡～",
+   "total": 80,
+   "counts": {
+    "A": 2,
+    "B": 2,
+    "C": 2,
+    "D": 2,
+    "E": 15,
+    "F": 12,
+    "G": 17,
+    "H": 28
+   },
+   "source": "https://meli-melo.blog.jp/archives/1081974091.html"
+  },
+  "kimetsu25": {
+   "name": "一番くじ 鬼滅の刃 ～受け継ぐ者～",
+   "total": 80,
+   "counts": {
+    "A": 1,
+    "B": 2,
+    "C": 2,
+    "D": 3,
+    "E": 18,
+    "F": 18,
+    "G": 18,
+    "H": 18
+   },
+   "source": "https://meli-melo.blog.jp/archives/1082246506.html"
+  },
+  "kimetsu26": {
+   "name": "一番くじ 鬼滅の刃 ～心を燃やせ～",
+   "total": 70,
+   "counts": {
+    "A": 2,
+    "B": 2,
+    "C": 2,
+    "D": 5,
+    "E": 18,
+    "F": 18,
+    "G": 23
+   },
+   "source": "https://meli-melo.blog.jp/archives/1082574578.html"
+  },
+  "kimetsu27": {
+   "name": "一番くじ 鬼滅の刃 ～上弦の参～",
+   "total": 60,
+   "counts": {
+    "A": 1,
+    "B": 1,
+    "C": 1,
+    "D": 1,
+    "E": 6,
+    "F": 13,
+    "G": 13,
+    "H": 24
+   },
+   "source": "https://meli-melo.blog.jp/archives/1082609947.html"
+  },
+  "kimetsu28": {
+   "name": "一番くじ 鬼滅の刃 ～雷の兄弟～",
+   "total": 60,
+   "counts": {
+    "A": 2,
+    "B": 1,
+    "C": 1,
+    "D": 8,
+    "E": 9,
+    "F": 18,
+    "G": 21
+   },
+   "source": "https://meli-melo.blog.jp/archives/1082971786.html"
+  },
+  "myhero44": {
+   "name": "一番くじ 僕のヒーローアカデミア -更に向こうへ-",
+   "total": 80,
+   "counts": {
+    "A": 1,
+    "B": 2,
+    "C": 1,
+    "D": 1,
+    "E": 2,
+    "F": 1,
+    "G": 1,
+    "H": 10,
+    "I": 14,
+    "J": 13,
+    "K": 13,
+    "L": 21
+   },
+   "source": "https://meli-melo.blog.jp/archives/1083089017.html"
+  },
+  "myhero46": {
+   "name": "一番くじ 僕のヒーローアカデミア -いつまでも手を差し伸べ続ける物語-",
+   "total": 80,
+   "counts": {
+    "A": 1,
+    "B": 1,
+    "C": 2,
+    "D": 1,
+    "E": 1,
+    "F": 10,
+    "G": 10,
+    "H": 20,
+    "I": 13,
+    "J": 21
+   },
+   "source": "https://meli-melo.blog.jp/archives/1083265192.html"
+  },
+  "myhero47": {
+   "name": "一番くじ 僕のヒーローアカデミア -最高のヒーローになるまでの物語-",
+   "total": 80,
+   "counts": {
+    "A": 1,
+    "B": 2,
+    "C": 1,
+    "D": 1,
+    "E": 2,
+    "F": 1,
+    "G": 24,
+    "H": 24,
+    "I": 24
+   },
+   "source": "https://meli-melo.blog.jp/archives/1083498158.html"
+  },
+  "naruto10": {
+   "name": "一番くじ NARUTO-ナルト- 疾風伝 風影奪還編",
+   "total": 70,
+   "counts": {
+    "A": 1,
+    "B": 1,
+    "C": 2,
+    "D": 1,
+    "E": 2,
+    "F": 10,
+    "G": 14,
+    "H": 21,
+    "I": 18
+   },
+   "source": "https://meli-melo.blog.jp/archives/1083273804.html"
+  },
+  "naruto2_2": {
+   "name": "一番くじ NARUTO-ナルト- 疾風伝 紡がれる火の意志",
+   "total": 80,
+   "counts": {
+    "A": 2,
+    "B": 3,
+    "C": 3,
+    "D": 24,
+    "E": 24,
+    "F": 24
+   },
+   "source": "https://meli-melo.blog.jp/archives/1079307066.html"
+  },
+  "naruto4": {
+   "name": "一番くじ NARUTO-ナルト- 疾風伝 繋がる思い",
+   "total": 80,
+   "counts": {
+    "A": 2,
+    "B": 2,
+    "C": 2,
+    "D": 2,
+    "E": 9,
+    "F": 16,
+    "G": 20,
+    "H": 15,
+    "I": 12
+   },
+   "source": "https://meli-melo.blog.jp/archives/1081614016.html"
+  },
+  "naruto5": {
+   "name": "一番くじ NARUTO-ナルト- 疾風伝 伝説の三忍",
+   "total": 80,
+   "counts": {
+    "A": 3,
+    "B": 3,
+    "C": 2,
+    "D": 8,
+    "E": 18,
+    "F": 24,
+    "G": 22
+   },
+   "source": "https://meli-melo.blog.jp/archives/1081832764.html"
+  },
+  "naruto6": {
+   "name": "一番くじ NARUTO-ナルト- 疾風伝 心を写す赤き瞳",
+   "total": 80,
+   "counts": {
+    "A": 2,
+    "B": 2,
+    "C": 2,
+    "D": 2,
+    "E": 2,
+    "F": 18,
+    "G": 18,
+    "H": 16,
+    "I": 18
+   },
+   "source": "https://meli-melo.blog.jp/archives/1082078645.html"
+  },
+  "naruto7": {
+   "name": "一番くじ NARUTO-ナルト- 中忍試験編",
+   "total": 80,
+   "counts": {
+    "A": 2,
+    "B": 1,
+    "C": 2,
+    "D": 1,
+    "E": 1,
+    "F": 2,
+    "G": 12,
+    "H": 20,
+    "I": 23,
+    "J": 16
+   },
+   "source": "https://meli-melo.blog.jp/archives/1082367768.html"
+  },
+  "naruto9": {
+   "name": "一番くじ NARUTO-ナルト- 疾風伝 輪廻の嘆きと平和の懸け橋",
+   "total": 70,
+   "counts": {
+    "A": 1,
+    "B": 1,
+    "C": 2,
+    "D": 1,
+    "E": 1,
+    "F": 1,
+    "G": 6,
+    "H": 12,
+    "I": 12,
+    "J": 15,
+    "K": 18
+   },
+   "source": "https://meli-melo.blog.jp/archives/1082969587.html"
+  },
+  "onep100": {
+   "name": "一番くじ ワンピース 思い描く未来",
+   "total": 70,
+   "counts": {
+    "A": 2,
+    "B": 2,
+    "C": 1,
+    "D": 1,
+    "E": 4,
+    "F": 1,
+    "G": 19,
+    "H": 20,
+    "I": 20
+   },
+   "source": "https://meli-melo.blog.jp/archives/1083145910.html"
+  },
+  "onep101": {
+   "name": "一番くじ ワンピース MONKEY.D.LUFFY－冒険の記憶と未来への航路－",
+   "total": 80,
+   "counts": {
+    "A": 2,
+    "B": 2,
+    "C": 1,
+    "D": 1,
+    "E": 2,
+    "F": 3,
+    "G": 23,
+    "H": 22,
+    "I": 24
+   },
+   "source": "https://meli-melo.blog.jp/archives/1083255948.html"
+  },
+  "onep102": {
+   "name": "一番くじ ワンピース 赤髪海賊団",
+   "total": 80,
+   "counts": {
+    "A": 2,
+    "B": 1,
+    "C": 1,
+    "D": 1,
+    "E": 3,
+    "F": 6,
+    "G": 10,
+    "H": 16,
+    "I": 20,
+    "J": 20
+   },
+   "source": "https://meli-melo.blog.jp/archives/1083334656.html"
+  },
+  "onep103": {
+   "name": "一番くじ ワンピース -エルバフ編- GIANT BASH!! Vol.1",
+   "total": 80,
+   "counts": {
+    "A": 2,
+    "B": 1,
+    "C": 1,
+    "D": 1,
+    "E": 2,
+    "F": 1,
+    "G": 12,
+    "H": 12,
+    "I": 24,
+    "J": 24
+   },
+   "source": "https://meli-melo.blog.jp/archives/1083397092.html"
+  },
+  "onep104": {
+   "name": "一番くじ ワンピース -エルバフ編- GIANT BASH!! Vol.2",
+   "total": 70,
+   "counts": {
+    "A": 2,
+    "B": 1,
+    "C": 2,
+    "D": 1,
+    "E": 1,
+    "F": 1,
+    "G": 4,
+    "H": 18,
+    "I": 20,
+    "J": 20
+   },
+   "source": "https://meli-melo.blog.jp/archives/1083419036.html"
+  },
+  "sakamotodays": {
+   "name": "一番くじ SAKAMOTO DAYS vol.1",
+   "total": 70,
+   "counts": {
+    "A": 2,
+    "B": 2,
+    "C": 1,
+    "D": 1,
+    "E": 1,
+    "F": 20,
+    "G": 22,
+    "H": 21
+   },
+   "source": "https://meli-melo.blog.jp/archives/1082169922.html"
+  },
+  "sakamotodays2": {
+   "name": "一番くじ SAKAMOTO DAYS vol.2",
+   "total": 70,
+   "counts": {
+    "A": 1,
+    "B": 1,
+    "C": 1,
+    "D": 1,
+    "E": 1,
+    "F": 1,
+    "G": 1,
+    "H": 18,
+    "I": 23,
+    "J": 22
+   },
+   "source": "https://meli-melo.blog.jp/archives/1082584435.html"
+  },
+  "sakamotodays3": {
+   "name": "一番くじ SAKAMOTO DAYS vol.3",
+   "total": 66,
+   "counts": {
+    "A": 1,
+    "B": 1,
+    "C": 1,
+    "D": 1,
+    "E": 2,
+    "F": 1,
+    "G": 21,
+    "H": 19,
+    "I": 19
+   },
+   "source": "https://meli-melo.blog.jp/archives/1082723040.html"
+  },
+  "shingeki11": {
+   "name": "一番くじ 進撃の巨人～地鳴らし～",
+   "total": 80,
+   "counts": {
+    "A": 1,
+    "B": 2,
+    "C": 2,
+    "D": 1,
+    "E": 2,
+    "F": 14,
+    "G": 14,
+    "H": 26,
+    "I": 18
+   },
+   "source": "https://meli-melo.blog.jp/archives/1081168763.html"
+  },
+  "shingeki12": {
+   "name": "一番くじ 進撃の巨人～壁の外の世界～",
+   "total": 80,
+   "counts": {
+    "A": 2,
+    "B": 1,
+    "C": 3,
+    "D": 2,
+    "E": 16,
+    "F": 16,
+    "G": 15,
+    "H": 15,
+    "I": 10
+   },
+   "source": "https://meli-melo.blog.jp/archives/1082287138.html"
+  },
+  "shingeki13": {
+   "name": "一番くじ 進撃の巨人 ～獣の巨人は俺が仕留める～",
+   "total": 66,
+   "counts": {
+    "A": 1,
+    "B": 2,
+    "C": 1,
+    "D": 2,
+    "E": 1,
+    "F": 17,
+    "G": 14,
+    "H": 14,
+    "I": 14
+   },
+   "source": "https://meli-melo.blog.jp/archives/1082720840.html"
+  },
+  "shingeki14": {
+   "name": "一番くじ 進撃の巨人 ～それぞれの決意～",
+   "total": 80,
+   "counts": {
+    "A": 1,
+    "B": 1,
+    "C": 1,
+    "D": 1,
+    "E": 15,
+    "F": 19,
+    "G": 19,
+    "H": 15,
+    "I": 8
+   },
+   "source": "https://meli-melo.blog.jp/archives/1083073496.html"
+  },
+  "shingeki16": {
+   "name": "一番くじ 進撃の巨人 ～心臓を捧げよ～",
+   "total": 70,
+   "counts": {
+    "A": 2,
+    "B": 1,
+    "C": 1,
+    "D": 1,
+    "E": 1,
+    "F": 2,
+    "G": 18,
+    "H": 8,
+    "I": 18,
+    "J": 18
+   },
+   "source": "https://meli-melo.blog.jp/archives/1083567533.html"
+  },
+  "vigilante_mha": {
+   "name": "一番くじ ヴィジランテ -僕のヒーローアカデミア ILLEGALS-",
+   "total": 66,
+   "counts": {
+    "A": 1,
+    "B": 2,
+    "C": 1,
+    "D": 1,
+    "E": 2,
+    "F": 20,
+    "G": 19,
+    "H": 20
+   },
+   "source": "https://meli-melo.blog.jp/archives/1083125309.html"
+  }
+ }
+}

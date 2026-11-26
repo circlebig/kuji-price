@@ -144,6 +144,36 @@ def load_prizes(con):
     return list(groups.values()), all_cfgs
 
 
+def load_lots():
+    """로트 구성 스냅샷(lots.json). {slug: {total, counts}}"""
+    path = ROOT / "kujiprice" / "lots.json"
+    if not path.exists():
+        return {}, None
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    return raw["kujis"], dict(source=raw["source"], checked=raw["checked"])
+
+
+def add_draw_value(out, lots):
+    """쿠지별로 '한 번 뽑을 때의 기대값'을 계산해 각 상에 붙인다.
+    값을 아는 것은 시세를 추적하는 피규어 상뿐이라, 하위상은 0엔으로 친 최솟값이다."""
+    by_kuji = {}
+    for o in out:
+        by_kuji.setdefault((o["work"], o["kuji"]), []).append(o)
+    for items in by_kuji.values():
+        lot = next((lots[s] for o in items for s in o["_slugs"] if s in lots), None)
+        if not lot:
+            continue
+        counts, total = lot["counts"], lot["total"]
+        figs = [o for o in items if o["id"].rsplit("-", 1)[1] in counts]
+        priced = [o for o in figs if o["jp"]]
+        ev = sum(counts[o["id"].rsplit("-", 1)[1]] * o["jp"]["median"] for o in priced) / total
+        info = dict(total=total, fig=sum(counts[o["id"].rsplit("-", 1)[1]] for o in figs),
+                    ev=round(ev), unpriced=len(figs) - len(priced))
+        for o in items:
+            letter = o["id"].rsplit("-", 1)[1]
+            o["lot"] = dict(n=counts.get(letter), **info)
+
+
 LOW_DAYS = 60  # 이보다 오래 손대지 않은 판매글은 이미 죽은 글일 수 있어 최저가 후보에서 뺀다
 
 
@@ -212,16 +242,20 @@ def run():
         con.execute("INSERT OR REPLACE INTO snapshot VALUES(?,?,?,?,?,?,?)",
                     (datetime.now().strftime("%Y-%m-%d"), p["id"],
                      jp and jp["median"], jp and jp["n"], kr and kr["median"], kr and kr["n"], rate))
-        out.append(dict(id=p["id"], sid=p["sid"], low=low, jp_search=yahoo_search_url(p),
+        out.append(dict(id=p["id"], _slugs=p["slugs"], lot=None, sid=p["sid"], low=low, jp_search=yahoo_search_url(p),
                         draw=p["draw"], premium=premium, work=p["work"], kuji=p["kuji_ko"], kuji_ja=p["kuji_ja"],
                         date=p["release_date"], label=ko_label(p), name_ja=p["name"],
                         image=p["image"], size=p["size"], jp=jp, kr=kr, gap=gap, hold=hold, us=us_prices.get(p["id"]),
                         trend=dict(jp=jp_trend, kr=kr_trend), chg=dict(jp=jp_chg, kr=kr_chg),
                         rows=[r for c in ("jp", "kr")
                               for r in [x for x in rows if x["c"] == c][:60]]))
+    lots, lots_meta = load_lots()
+    add_draw_value(out, lots)
+    for o in out:
+        del o["_slugs"]
     out.sort(key=lambda x: (x["date"] or "", x["id"]), reverse=True)
 
-    data = dict(generated=datetime.now().strftime("%Y-%m-%d %H:%M:%S"), fx=round(rate, 3), fx_usd=round(usd, 6), us_meta=us_meta,
+    data = dict(generated=datetime.now().strftime("%Y-%m-%d %H:%M:%S"), fx=round(rate, 3), fx_usd=round(usd, 6), us_meta=us_meta, lots_meta=lots_meta,
                 fx_time=rate_time, window=WINDOW_DAYS,
                 works={k: v["ko"] for k, v in WORKS.items()}, prizes=out)
     (DATA / "data.json").write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
