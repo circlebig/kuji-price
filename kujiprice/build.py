@@ -3,6 +3,7 @@ import json
 from collections import Counter
 from datetime import date, datetime, timedelta, timezone
 from statistics import median
+from urllib.parse import quote
 
 import requests
 
@@ -130,12 +131,38 @@ def load_prizes(con):
             g = groups[key]
             if date and (not g["release_date"] or date < g["release_date"]):
                 g["release_date"] = date
+                g["draw"] = k["price_per_draw"] or g["draw"]  # 첫 발매 때의 1회 가격
+            g["slugs"].append(p["slug"])
             continue
         groups[key] = dict(id=f"{group}-{p['letter']}", work=k["work"], group=group, cfg=cfg,
                            letter=p["letter"], name=p["name"], image=p["image"], size=p["size"],
                            kuji_ja=k["name"], kuji_ko=cfg.get("ko_name", k["name"]),
-                           release_date=date)
+                           release_date=date, draw=k["price_per_draw"], slugs=[p["slug"]])
+    for g in groups.values():
+        # 공유 주소에 쓰는 고정 id. 사전 순서가 바뀌어도 변하지 않게 공식 사이트의 쿠지 주소명을 쓴다
+        g["sid"] = f"{min(g['slugs'])}-{g['letter']}"
     return list(groups.values()), all_cfgs
+
+
+LOW_DAYS = 60  # 이보다 오래 손대지 않은 판매글은 이미 죽은 글일 수 있어 최저가 후보에서 뺀다
+
+
+def lowest_selling(rows, kr):
+    """번개장터에서 지금 판매 중인 가장 싼 매물. 미끼 가격(시세의 0.4배 미만)은 뺀다."""
+    since = (datetime.now() - timedelta(days=LOW_DAYS)).strftime("%Y-%m-%d")
+    floor = kr["median"] * 0.4 if kr else 0
+    c = [r for r in rows if r["c"] == "kr" and r["s"] == "selling" and not r["o"]
+         and r["d"] >= since and r["p"] >= floor]
+    if not c:
+        return None
+    r = min(c, key=lambda r: r["p"])
+    return dict(p=r["p"], u=r["u"], t=r["t"], d=r["d"], n=len(c))
+
+
+def yahoo_search_url(p):
+    """야후옥션에서 지금 진행 중인 경매를 찾는 검색 주소."""
+    word = "ラストワン賞" if p["letter"] == "LAST" else f"{p['letter']}賞"
+    return "https://auctions.yahoo.co.jp/search/search?p=" + quote(f"{p['kuji_ja']} {word}")
 
 
 def run():
@@ -176,13 +203,17 @@ def run():
             jp_krw = jp["median"] * rate
             gap = round((kr["median"] - jp_krw) / jp_krw * 100)
         hold = hold_reason(jp, kr, rate)
+        # 정가 대비: 일본 낙찰가가 뽑기 1회 가격(엔)보다 몇 % 비싼지(음수면 정가 미만)
+        premium = round((jp["median"] / p["draw"] - 1) * 100) if jp and p["draw"] else None
+        low = lowest_selling(rows, kr)
         rows.sort(key=lambda r: r["d"], reverse=True)
         jp_trend, jp_chg = trend(rows, "jp")
         kr_trend, kr_chg = trend(rows, "kr")
         con.execute("INSERT OR REPLACE INTO snapshot VALUES(?,?,?,?,?,?,?)",
                     (datetime.now().strftime("%Y-%m-%d"), p["id"],
                      jp and jp["median"], jp and jp["n"], kr and kr["median"], kr and kr["n"], rate))
-        out.append(dict(id=p["id"], work=p["work"], kuji=p["kuji_ko"], kuji_ja=p["kuji_ja"],
+        out.append(dict(id=p["id"], sid=p["sid"], low=low, jp_search=yahoo_search_url(p),
+                        draw=p["draw"], premium=premium, work=p["work"], kuji=p["kuji_ko"], kuji_ja=p["kuji_ja"],
                         date=p["release_date"], label=ko_label(p), name_ja=p["name"],
                         image=p["image"], size=p["size"], jp=jp, kr=kr, gap=gap, hold=hold, us=us_prices.get(p["id"]),
                         trend=dict(jp=jp_trend, kr=kr_trend), chg=dict(jp=jp_chg, kr=kr_chg),

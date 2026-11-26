@@ -103,6 +103,13 @@ main{padding-top:6px;padding-bottom:20px}
 .us{margin-top:7px;padding-top:7px;border-top:1px dashed var(--line);font-size:12.5px;font-weight:600}
 .us i{font-style:normal;font-weight:500;color:var(--sub);margin-right:4px}
 .us span{font-weight:400;color:var(--sub);margin-left:4px}
+.buy{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 16px}
+.buy>div{border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13.5px}
+.buy small{display:block;color:var(--sub);font-size:12px}
+.buy b{font-size:18px;margin-right:6px} .buy b.dim{color:var(--faint);font-weight:500}
+.share{margin-left:auto;align-self:flex-start;border:1px solid var(--line);background:var(--card);border-radius:999px;
+  padding:6px 12px;font-size:13px;cursor:pointer;white-space:nowrap;flex:none}
+.share+.x{margin-left:0}
 .usbox{border:1px dashed var(--line);border-radius:12px;padding:12px 14px;margin:0 0 16px;font-size:13.5px}
 .usbox b{font-size:17px}
 .usbox small{display:block;color:var(--sub);font-size:12px;margin-top:4px}
@@ -162,6 +169,7 @@ footer p{margin:0 0 6px;max-width:880px}
   .chart svg{min-width:560px}
 
   .cols{grid-template-columns:1fr}
+  .buy{grid-template-columns:1fr}
   dialog{width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;border-radius:0;border:0;margin:0}
   .dhead img{width:60px;height:60px}
   .sum b{font-size:17px}
@@ -204,6 +212,7 @@ footer p{margin:0 0 6px;max-width:880px}
       <option value="gapdesc">직구가 이득인 순</option>
       <option value="gapasc">한국 구매가 이득인 순</option>
       <option value="price">일본 시세 높은 순</option>
+      <option value="premium">정가 대비 높은 순</option>
     </select>
     <input type="search" id="q" placeholder="캐릭터·쿠지 이름 검색" aria-label="검색">
     <label class="chk"><input type="checkbox" id="both" checked> 비교 가능한 것만</label>
@@ -266,7 +275,11 @@ const gapOf = p => comparable(p)
 
 // 어느 쪽이 이득인지: {side: "jp"|"kr"|"none", text}
 function verdict(p) {
-  if (!p.jp || !p.kr) return {side: "none", text: p.jp || p.kr ? "한쪽 시세만 있음" : "매물 없음"};
+  if (!p.jp && !p.kr) {
+    const unreleased = !p.date || p.date > D.generated.slice(0, 10);
+    return {side: "none", text: unreleased ? "발매 전" : "매물 없음"};
+  }
+  if (!p.jp || !p.kr) return {side: "none", text: "한쪽 시세만 있음"};
   if (p.hold) return {side: "none", text: "비교 보류 · " + p.hold};
   const diff = p.kr.median - landed(p.jp.median).total, g = gapOf(p);
   if (g > 0) return {side: "jp", text: "직구 " + won(diff) + " 이득"};
@@ -304,6 +317,13 @@ function usLine(p) {
   return `<div class="us"><i>미국 이치방쇼</i> $${p.us.price} <span>약 ${won(usWon(p.us.price))} · ${US_STATUS[p.us.status] || ""}</span></div>`;
 }
 
+// 뽑기 1회 가격(정가) 대비 일본 낙찰가
+function premiumText(p) {
+  if (p.premium == null) return "";
+  const v = p.premium;
+  return `<span><i>정가 ${yen(p.draw)} 대비</i> ${v > 0 ? "+" : ""}${v.toLocaleString("ko-KR")}%</span>`;
+}
+
 function card(p, showKuji) {
   const el = document.createElement("button");
   el.className = "card";
@@ -319,6 +339,7 @@ function card(p, showKuji) {
         ${p.jp ? `<span><i>일본 낙찰</i> ${yen(p.jp.median)} · ${p.jp.n}건</span>` : ""}
         ${p.kr ? `<span><i>한국</i> ${p.kr.n}건</span>` : ""}
         ${chgText(p)}
+        ${premiumText(p)}
       </div>
       ${usLine(p)}
     </div>`;
@@ -373,6 +394,7 @@ function render() {
   if (sort === "gapdesc") list.sort((a, b) => (g(b) ?? -1e9) - (g(a) ?? -1e9));
   if (sort === "gapasc") list.sort((a, b) => (g(a) ?? 1e9) - (g(b) ?? 1e9));
   if (sort === "price") list.sort((a, b) => (b.jp?.median ?? 0) - (a.jp?.median ?? 0));
+  if (sort === "premium") list.sort((a, b) => (b.premium ?? -1e9) - (a.premium ?? -1e9));
   const sec = document.createElement("section");
   sec.className = "group flat";
   sec.innerHTML = `<div class="grid"></div>`;
@@ -451,6 +473,7 @@ function openDetail(p) {
       <div><div class="kuji">${esc(D.works[p.work])} · ${esc(p.kuji)} · ${esc(p.date || "발매일 미정")} 발매</div>
         <h2>${esc(p.label)}</h2>
         <div class="kuji">${esc(p.name_ja)}${p.size ? " · " + esc(p.size) : ""}</div></div>
+      <button class="share" type="button">링크 복사</button>
       <button class="x" aria-label="닫기">×</button></div>
     <div class="dbody">
       <div class="sum">
@@ -461,6 +484,15 @@ function openDetail(p) {
           <small>${L ? "배송·수수료" + (L.taxed ? "·세금" : "") + " 포함" : ""}</small></div>
         <div class="kr"><small>한국 ${p.kr ? esc(p.kr.basis.split("(")[0]) + " · " + p.kr.n + "건" : "· 매물 없음"}</small>
           <b>${p.kr ? won(p.kr.median) : "–"}</b><small>${p.kr && p.kr.basis.includes("(") ? "판매중 포함" : ""}</small></div>
+      </div>
+      <div class="buy">
+        <div><small>번개장터 판매 중 최저가${p.low ? " · 후보 " + p.low.n + "건" : ""}</small>
+          ${p.low ? `<b>${won(p.low.p)}</b> <a href="${esc(p.low.u)}" target="_blank" rel="noopener noreferrer">매물 보기</a>
+            <small>${esc(p.low.d.slice(5))} 수정 · ${esc(p.low.t)}</small>`
+          : `<b class="dim">없음</b><small>최근 ${60}일 안에 수정된 판매 중 매물이 없습니다.</small>`}</div>
+        <div><small>일본에서 지금 사려면</small>
+          <a href="${esc(p.jp_search)}" target="_blank" rel="noopener noreferrer">야후옥션 진행 중 경매 검색</a>
+          <small>진행 중인 경매는 수집하지 않아 가격을 보여 드리지 못합니다.${p.premium != null ? ` 정가(1회 ${yen(p.draw)}) 대비 낙찰가 ${p.premium > 0 ? "+" : ""}${p.premium.toLocaleString("ko-KR")}%.` : ""}</small></div>
       </div>
       ${p.us ? `<div class="usbox">
         <i style="font-style:normal;color:var(--sub)">미국 이치방쇼 (해외 소매판) · ${US_STATUS[p.us.status] || ""}</i><br>
@@ -484,9 +516,30 @@ function openDetail(p) {
     </div>`;
   dlg.querySelector(".x").onclick = () => dlg.close();
   dlg.onclick = e => { if (e.target === dlg) dlg.close(); };
-  dlg.showModal();
+  const share = dlg.querySelector(".share");
+  share.onclick = async () => {
+    const url = location.origin + location.pathname + "#" + p.sid;
+    try { await navigator.clipboard.writeText(url); share.textContent = "복사됨"; }
+    catch (e) { prompt("이 주소를 복사하세요", url); }
+    setTimeout(() => { share.textContent = "링크 복사"; }, 1500);
+  };
+  if (!dlg.open) dlg.showModal();
   dlg.scrollTop = 0;
+  // 주소에 상품 id를 남겨서 그대로 공유할 수 있게 한다
+  if (location.hash.slice(1) !== p.sid) history.replaceState(null, "", "#" + p.sid);
 }
+
+// 주소의 #상품id 로 들어오면 그 상품의 상세 창을 연다
+function openFromHash() {
+  const sid = decodeURIComponent(location.hash.slice(1));
+  const p = sid && D.prizes.find(x => x.sid === sid);
+  if (p) openDetail(p);
+}
+$("dlg").addEventListener("close", () => {
+  // 닫힘 알림은 조금 늦게 오므로, 그 사이 다른 상품을 열었으면 주소를 지우지 않는다
+  if (!$("dlg").open && location.hash) history.replaceState(null, "", location.pathname + location.search);
+});
+window.addEventListener("hashchange", openFromHash);
 
 // 작품 선택
 [["all", "전체"], ...Object.entries(D.works)].forEach(([k, v]) => {
@@ -520,6 +573,7 @@ for (const k in A_DEFAULT) $("a_" + k).addEventListener("change", e => {
 $("a_reset").onclick = () => { A = {...A_DEFAULT}; saveAssume(); };
 showAssume();
 render();
+openFromHash();
 
 // 새로 집계되면 페이지를 자동으로 다시 불러온다 (상세 창이 열려 있으면 닫힐 때까지 기다림)
 setInterval(async () => {
